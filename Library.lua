@@ -8317,12 +8317,20 @@ do
             AnchorPoint = Vector2.new(0, 1),
             --// Same grey material as the switch track, rather than near black
             BackgroundColor3 = Info.Compact and "MainColor" or "FontColor",
+			 ClipsDescendants = true,
             Position = Info.Compact and UDim2.fromScale(0, 1)
                 or UDim2.new(0, 0, 1, -SLIDER_BALL_MARGIN),
             Size = UDim2.new(1, 0, 0, Info.Compact and 15 or SLIDER_BAR_HEIGHT),
             Text = "",
             Parent = Holder,
         })
+		New("UIPadding", {
+		PaddingBottom = UDim.new(0, 3),
+		PaddingTop = UDim.new(0, 3),
+		PaddingLeft = UDim.new(0, 3),
+		PaddingRight = UDim.new(0, 3),
+		Parent = Bar,
+		})
 
         New("UIStroke", {
             Color = "OutlineColor",
