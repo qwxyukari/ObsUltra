@@ -8434,7 +8434,6 @@ InputTextBox = New("TextBox", {
 
                 if TargetX - HalfText < 0 then
                     TargetX = HalfText
-
                 elseif TargetX + HalfText > BarWidth then
                     TargetX = BarWidth - HalfText
                 end
@@ -8456,10 +8455,10 @@ InputTextBox = New("TextBox", {
                         InputTextBox.Position = UDim2.new(ScaleX, 0, 0.5, 0)
                     end
                 end
+            end
 
             UpdateLabelPosition()
         end
-		end
 
         function Slider:OnChanged(Func)
             Slider.Changed = Func
