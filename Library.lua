@@ -8561,7 +8561,13 @@ do
             end
 
             --// Nudged inward at the ends so the ball never hangs off the bar
-Fill.Size = UDim2.fromScale(X, 1)
+            local Size = BallActive and SLIDER_BALL_SIZE_ACTIVE or SLIDER_BALL_SIZE
+            local Edge = UDim.new(X, (0.5 - X) * Size)
+
+            --// The fill runs to the middle of the ball rather than to the raw
+            --// value, so the ball always covers its rounded cap. Ending them at
+            --// different places leaves a notch between the two at low values.
+            Fill.Size = UDim2.new(Edge.Scale, Edge.Offset, 1, 0)
 
             local Position = UDim2.new(Edge.Scale, Edge.Offset, 0.5, 0)
             Ball.Position = Position
