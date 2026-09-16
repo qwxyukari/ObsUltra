@@ -7727,8 +7727,8 @@ do
             Parent = Label,
         })
 
-        --// Toggle stays a pill at any radius, even when everything else is squared off
-        local SwitchPillRadius = UDim.new(1, 0)
+        --// Track/knob are pills at any radius, but go square when the radius is 0
+        local SwitchPillRadius = Library.CornerRadius > 0 and UDim.new(1, 0) or UDim.new(0, 0)
 
         local Switch = New("Frame", {
             AnchorPoint = Vector2.new(1, 0.5),
