@@ -8415,10 +8415,32 @@ do
 
             local X = (Slider.Value - Slider.Min) / (Slider.Max - Slider.Min)
             Fill.Size = UDim2.fromScale(X, 1)
-            DisplayLabel.Position = UDim2.new(X, -6, 0.5, 0)
 
-            if Info.AllowRightClickInput and InputTextBox then
-                InputTextBox.Position = UDim2.new(X, -6, 0.5, 0)
+
+            local FillWidthPx = Bar.AbsoluteSize.X * X
+            local TextWidthPx = DisplayLabel.AbsoluteSize.X
+            local FitsOnLeft = FillWidthPx >= TextWidthPx + 12
+
+            if FitsOnLeft then
+                DisplayLabel.AnchorPoint = Vector2.new(1, 0.5)
+                DisplayLabel.Position = UDim2.new(X, -6, 0.5, 0)
+                DisplayLabel.TextXAlignment = Enum.TextXAlignment.Right
+
+                if Info.AllowRightClickInput and InputTextBox then
+                    InputTextBox.AnchorPoint = Vector2.new(1, 0.5)
+                    InputTextBox.Position = UDim2.new(X, -6, 0.5, 0)
+                    InputTextBox.TextXAlignment = Enum.TextXAlignment.Right
+                end
+            else
+                DisplayLabel.AnchorPoint = Vector2.new(0, 0.5)
+                DisplayLabel.Position = UDim2.new(X, 6, 0.5, 0)
+                DisplayLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+                if Info.AllowRightClickInput and InputTextBox then
+                    InputTextBox.AnchorPoint = Vector2.new(0, 0.5)
+                    InputTextBox.Position = UDim2.new(X, 6, 0.5, 0)
+                    InputTextBox.TextXAlignment = Enum.TextXAlignment.Left
+                end
             end
         end
 
