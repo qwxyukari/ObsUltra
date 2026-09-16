@@ -8320,7 +8320,7 @@ do
             Position = UDim2.new(0.5, -6, 0.5, 0),
             Size = UDim2.new(0, 0, 1, 0),
             Text = "",
-            TextSize = 14,
+            TextSize = 12,
             TextXAlignment = Enum.TextXAlignment.Right,
             ZIndex = Bar.ZIndex + 2,
             Parent = Bar,
@@ -8415,10 +8415,10 @@ do
 
             local X = (Slider.Value - Slider.Min) / (Slider.Max - Slider.Min)
             Fill.Size = UDim2.fromScale(X, 1)
-            DisplayLabel.Position = UDim2.new(X, -3, 0.5, 0)
+            DisplayLabel.Position = UDim2.new(X, -6, 0.5, 0)
 
             if Info.AllowRightClickInput and InputTextBox then
-                InputTextBox.Position = UDim2.new(X, -3, 0.5, 0)
+                InputTextBox.Position = UDim2.new(X, -6, 0.5, 0)
             end
         end
 
