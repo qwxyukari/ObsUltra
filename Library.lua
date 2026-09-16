@@ -8302,7 +8302,7 @@ do
             Active = not Slider.Disabled,
             AnchorPoint = Vector2.new(0, 1),
             BackgroundColor3 = "MainColor",
-            Position = UDim2.fromScale(0, 1),
+            Position = UDim2.fromScale(0, 10),
             Size = UDim2.new(1, 0, 0, 10),
             Text = "",
             Parent = Holder,
