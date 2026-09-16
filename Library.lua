@@ -8415,10 +8415,10 @@ do
 
             local X = (Slider.Value - Slider.Min) / (Slider.Max - Slider.Min)
             Fill.Size = UDim2.fromScale(X, 1)
-            DisplayLabel.Position = UDim2.new(X, -6, 0.5, 0)
+            DisplayLabel.Position = UDim2.new(X, -3, 0.5, 0)
 
             if Info.AllowRightClickInput and InputTextBox then
-                InputTextBox.Position = UDim2.new(X, -6, 0.5, 0)
+                InputTextBox.Position = UDim2.new(X, -3, 0.5, 0)
             end
         end
 
