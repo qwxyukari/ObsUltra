@@ -7736,14 +7736,14 @@ do
             Position = UDim2.new(1, 0, 0.5, 0),
             Size = UDim2.fromOffset(SWITCH_WIDTH, SWITCH_TRACK_HEIGHT),
             Parent = Button,
-        })
-        table.insert(
-            Library.PillCorners,
+        --})
+        --table.insert(
+            --Library.PillCorners,
             New("UICorner", {
                 CornerRadius = SwitchPillRadius,
                 Parent = Switch,
             })
-        )
+        --)
         New("UIPadding", {
             PaddingBottom = UDim.new(0, 2),
             PaddingLeft = UDim.new(0, 2),
