@@ -8441,18 +8441,18 @@ InputTextBox = New("TextBox", {
                 local ScaleX = TargetX / BarWidth
 
                 if Slider.Dragging then
-                    DisplayLabel.Position = UDim2.new(ScaleX, 0, 0.5, 0)
+                    DisplayLabel.Position = UDim2.new(ScaleX, 0, 0.5, 1)
 
                     if Info.AllowRightClickInput and InputTextBox then
-                        InputTextBox.Position = UDim2.new(ScaleX, 0, 0.5, 0)
+                        InputTextBox.Position = UDim2.new(ScaleX, 0, 0.5, 1)
                     end
                 else
                     TweenService:Create(DisplayLabel, Library.TweenInfo, {
-                        Position = UDim2.new(ScaleX, 0, 0.5, 0),
+                        Position = UDim2.new(ScaleX, 0, 0.5, 1),
                     }):Play()
 
                     if Info.AllowRightClickInput and InputTextBox then
-                        InputTextBox.Position = UDim2.new(ScaleX, 0, 0.5, 0)
+                        InputTextBox.Position = UDim2.new(ScaleX, 0, 0.5, 1)
                     end
                 end
             end
