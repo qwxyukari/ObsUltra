@@ -7728,7 +7728,7 @@ do
         })
 
         --// Track/knob are pills at any radius, but go square when the radius is 0
-        local SwitchPillRadius = Library.CornerRadius > 0 and UDim.new(1, 0) or UDim.new(1, 0)
+        local SwitchPillRadius = Library.CornerRadius > 1 and UDim.new(1, 0) or UDim.new(1, 0)
 
         local Switch = New("Frame", {
             AnchorPoint = Vector2.new(1, 0.5),
