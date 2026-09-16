@@ -7728,7 +7728,7 @@ do
         })
 
         --// Track/knob are pills at any radius, but go square when the radius is 0
-        local SwitchPillRadius = Library.CornerRadius > 0 and UDim.new(1, 0) or UDim.new(0, 0)
+        local SwitchPillRadius = UDim.new(1, 0)
 
         local Switch = New("Frame", {
             AnchorPoint = Vector2.new(1, 0.5),
@@ -7737,13 +7737,10 @@ do
             Size = UDim2.fromOffset(SWITCH_WIDTH, SWITCH_TRACK_HEIGHT),
             Parent = Button,
         })
-        table.insert(
-            Library.PillCorners,
-            New("UICorner", {
-                CornerRadius = SwitchPillRadius,
-                Parent = Switch,
-            })
-        )
+New("UICorner", {
+    CornerRadius = SwitchPillRadius,
+    Parent = Switch, -- и для BallShadow, и для Ball
+})
         New("UIPadding", {
             PaddingBottom = UDim.new(0, 2),
             PaddingLeft = UDim.new(0, 2),
