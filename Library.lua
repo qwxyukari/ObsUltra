@@ -8317,21 +8317,12 @@ do
             AnchorPoint = Vector2.new(0, 1),
             --// Same grey material as the switch track, rather than near black
             BackgroundColor3 = Info.Compact and "MainColor" or "FontColor",
-			 ClipsDescendants = true,
             Position = Info.Compact and UDim2.fromScale(0, 1)
                 or UDim2.new(0, 0, 1, -SLIDER_BALL_MARGIN),
             Size = UDim2.new(1, 0, 0, Info.Compact and 15 or SLIDER_BAR_HEIGHT),
             Text = "",
             Parent = Holder,
         })
-		
-		New("UIPadding", {
-    PaddingBottom = UDim.new(0, 3),
-    PaddingTop = UDim.new(0, 3),
-    PaddingLeft = UDim.new(0, 3),
-    PaddingRight = UDim.new(0, 3),
-    Parent = Bar,
-})
 
         New("UIStroke", {
             Color = "OutlineColor",
@@ -8476,13 +8467,13 @@ BallShadow.Visible = false
             })
         )
 
-        table.insert(
-            Library.PillCorners,
-            New("UICorner", {
-                CornerRadius = Library.CornerRadius > 0 and UDim.new(1, 0) or UDim.new(0, 0),
-                Parent = Fill,
-            })
-        )
+local FillCorner = New("UICorner", {
+    TopLeftRadius = UDim.new(0, 0),
+    TopRightRadius = UDim.new(0, 0),
+    BottomLeftRadius = UDim.new(0, 0),
+    BottomRightRadius = UDim.new(0, 0),
+    Parent = Fill,
+})
 
         --// Grows the ball while hovered or dragged, per the design note. The fill
         --// ends at the ball's centre, so it has to travel with it.
@@ -8539,10 +8530,37 @@ end
                 end
             end
 
-local X = (Slider.Value - Slider.Min) / (Slider.Max - Slider.Min) ---
-Fill.Visible = X > 0.001 ---
-Fill.Size = UDim2.fromScale(X, 1) ---
-        end
+local X = (Slider.Value - Slider.Min) / (Slider.Max - Slider.Min)
+
+Fill.Visible = X > 0.001
+Fill.Size = UDim2.fromScale(X, 1)
+
+local FillRadius = (Info.Compact and 15 or SLIDER_BAR_HEIGHT) / 2
+local R = UDim.new(0, FillRadius)
+local Zero = UDim.new(0, 0)
+
+if Library.CornerRadius > 0 then
+    --// Left side always follows Bar's left cap. Roblox will clamp the radius
+    --// down for very narrow fills, which is exactly what we want — a small nub
+    --// that grows into the full cap.
+    FillCorner.TopLeftRadius = R
+    FillCorner.BottomLeftRadius = R
+
+    --// Right side is flat mid-range; it only rounds out at the very end so the
+    --// fully-filled state matches Bar's pill exactly.
+    if X >= 0.999 then
+        FillCorner.TopRightRadius = R
+        FillCorner.BottomRightRadius = R
+    else
+        FillCorner.TopRightRadius = Zero
+        FillCorner.BottomRightRadius = Zero
+    end
+else
+    FillCorner.TopLeftRadius = Zero
+    FillCorner.BottomLeftRadius = Zero
+    FillCorner.TopRightRadius = Zero
+    FillCorner.BottomRightRadius = Zero
+end
 
         function Slider:OnChanged(Func)
             Slider.Changed = Func
