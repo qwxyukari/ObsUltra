@@ -1,0 +1,762 @@
+# ObsidianUltra
+
+> A fork of the Obsidian UI library (deividcomsono/Obsidian) for Roblox exploit scripts.
+> Everything from upstream Obsidian works unchanged; this file documents only what this
+> fork adds, because an LLM that knows upstream Obsidian will not know about these.
+
+Load it the same way as upstream, but from this repo:
+
+```lua
+local repo = "https://raw.githubusercontent.com/joustingmatch/ObsidianUltra/main/"
+local Library = loadstring(game:HttpGet(repo .. "Library.lua"))()
+```
+
+Types for these additions live in `Library.d.luau`; `Example.lua` has runnable usage.
+
+## Contents
+
+- **Tabs & layout** — [Single-column tabs](#single-column-tabs), [Sub tabs](#sub-tabs-tabs-inside-a-tab), [Header](#header)
+- **Sidebar** — [Resizable sidebar](#resizable-sidebar), [Compact sidebar](#compact-sidebar), [Sidebar tooltips](#sidebar-tooltips)
+- **Elements** — [Restyled toggles & sliders](#restyled-toggles-and-sliders), [Select All / Deselect All](#select-all--deselect-all), [Expandable dropdowns](#expandable-dropdowns)
+- **Chrome** — [Search v2](#search-v2), [Minimize](#minimize), [Copyable footer](#copyable-footer), [Watermark status bar](#watermark-status-bar), [Player cards](#player-cards), [Notifications & history](#notifications--history)
+- **System** — [Tooltips](#tooltips), [Pill corners, radius & DPI](#pill-corners-corner-radius--dpi), [Scheme.BlueColor](#schemebluecolor), [Unsupported-executor gate](#unsupported-executor-gate)
+
+---
+
+## Single-column tabs
+
+By default a tab splits its content into a left and a right column. Passing a layout hint
+collapses it to **one full-width column** instead — better for tabs that read top to bottom
+(info, changelogs, a single settings list) and don't want a split.
+
+```lua
+local Info = Window:AddTab({
+    Name = "Info",
+    Icon = "square",
+    SingleColumn = true,          -- or: Layout = "Single" / "Center" / 1
+})
+```
+
+`Layout` accepts `"Single"`, `"Center"`, `"Centre"`, `"One"`, or `1`; the boolean
+`SingleColumn = true` is shorthand for the same. Omitted (or `"Dual"` / `2`) keeps the
+normal split.
+
+In single-column mode **both** `AddLeftGroupbox` and `AddRightGroupbox` (and the tabbox
+equivalents) land in the one column, so existing code that puts boxes on both sides still
+works — everything simply stacks. Sub tabs of a single-column tab inherit the layout, so
+their columns are single too.
+
+## Sub tabs (tabs inside a tab)
+
+A sub tab is a second level of tabs *inside* one sidebar tab. Giving a tab sub tabs gets
+you **both** views of them at once, with nothing to turn on:
+
+- a **row of buttons** across the top of the tab's content area, above the groupboxes
+- a **collapsible list** in the sidebar, indented under the tab, with a chevron to expand
+  and collapse it
+
+They are two views of the same sub tabs, not two sets. Switching in either one drives the
+other, because both are painted from the same `SubTab:Show` and `SubTab:Hide`.
+
+This is not the same thing as a **Tabbox** — a Tabbox is a small tabbed widget that lives
+inside one column, while a sub tab owns the entire content area and has its own left and
+right columns.
+
+### Creating them
+
+```lua
+local Combat = Window:AddTab("Combat", "swords")
+
+local PvP = Combat:AddSubTab("PvP")                                 -- name, icon
+local Parry = Combat:AddSubTab("Parry", "shield")
+local Builder = Combat:AddSubTab({ Name = "Builder", Icon = "wrench" })  -- table form
+```
+
+`Tab:AddSubTab` accepts either `(Name: string, Icon: string?)` or a
+`{ Name: string, Icon: string? }` table, mirroring `Window:AddTab`. The icon is optional
+and resolves through the same lucide lookup as everywhere else.
+
+### What a sub tab supports
+
+A sub tab is tab-like: it has its own `Sides` (left and right `ScrollingFrame`s), so every
+container method a tab has works on it, and the elements inside behave identically.
+
+```lua
+PvP:AddLeftGroupbox("Aiming", "crosshair"):AddToggle("SilentAim", { Text = "Silent Aim" })
+PvP:AddRightGroupbox("Targeting"):AddDropdown("HitPart", { Values = { "Head" }, Default = 1 })
+
+local Box = Builder:AddLeftTabbox("Animation Builder")   -- tabboxes nest inside sub tabs
+Box:AddTab("Timings"):AddToggle("Preview", { Text = "Preview" })
+```
+
+Available on a sub tab: `AddGroupbox`, `AddLeftGroupbox`, `AddRightGroupbox`, `AddTabbox`,
+`AddLeftTabbox`, `AddRightTabbox`, `Show`, `Hide`, `SetVisible`, `Hover`, `Resize`,
+`RefreshSides`, `Destroy`.
+
+Fields: `Type` (`"SubTab"`), `Name`, `Window`, `Tab` (the parent tab), `Canvas`, `Button`,
+`Sides`, `Groupboxes`, `Tabboxes`, `DependencyGroupboxes`.
+
+### The sidebar list
+
+A tab that has sub tabs grows a chevron on the right of its sidebar button. Clicking the
+**chevron** expands or collapses the list without switching tabs; clicking the **tab
+itself** switches to it and opens its list. Only one list is open at a time: opening a tab
+collapses the previously open one. Selecting a nested row switches to that tab first if it
+was not already open, then to the sub tab.
+
+Every row reserves the same icon column whether or not it has an icon, so all the labels
+line up. Without that, an iconless row sat further left than its siblings and read as a
+level shallower in the tree.
+
+The open sub tab's row is marked with an accent bar, an accent label, and a faint fill;
+idle rows are label only at 40% transparency, and hover sits between the two. The list
+animates open and closed, and the chevron rotates with it. Disable both with
+`Animations = { SidebarSubTabs = false }`, which like `SubTabUnderline` defaults to `true`.
+
+**In a compacted sidebar the sub tabs still show.** The chevron has no room, so it is
+hidden, but the open tab's nested rows flip to **centered icon-only rows** (the labels and
+indent marker drop) tucked under the parent icon — see [Compact sidebar](#compact-sidebar).
+Expanding the sidebar restores the labelled rows.
+
+Per-tab control:
+
+```lua
+Tab:SetExpanded(true)
+Tab:ToggleExpanded()
+Tab:IsExpanded()
+```
+
+### The button row
+
+The row sits above the groupboxes and reserves vertical space for itself, so tab content
+starts below it. It is centered by default:
+
+```lua
+Combat:SetSubTabAlignment("Left")   -- "Left" | "Center" | "Right"
+```
+
+The active sub tab is drawn as a rounded chip: a fill lighter than `MainColor`, a thin
+outline, a drop shadow, an accent label, and a bar underneath. Idle sub tabs are label only
+at 40% transparency; hover sits between the two.
+
+Hovering squashes the chip slightly (a `UIScale` tween). This applies to the active sub tab
+as well — hovering the chip you are already on still responds — while every other hover
+change is skipped for it.
+
+The sub tab button is only the hit target and the layout item: it is transparent and keeps
+a fixed size so the row never reflows, and everything visible sits in a scaled holder
+inside it, with two offset shadow layers as siblings of the chip. Roblox renders children
+above their parent, so the shadow cannot be a child of the chip it falls behind.
+
+There is **one** underline shared by the whole bar, not one per button: it slides and
+resizes to the newly active chip on every switch, gradienting from the font colour at both
+ends to the accent colour in the middle. It snaps rather than slides on the first show and
+when the bar is resized. Disable the slide with
+`Animations = { SubTabUnderline = false }` — unlike the other animation flags it defaults
+to `true`.
+
+### Behaviour worth knowing
+
+- **The parent tab becomes a host.** The moment a tab gets its first sub tab, that tab's
+  own left/right columns are hidden. Put your groupboxes on the sub tabs, not on the
+  parent tab — anything already added to the parent will disappear from view.
+- The first sub tab added is shown automatically. `SubTab:Show()` switches to one;
+  switching reuses the window's tab transition animation settings.
+- `SubTab:SetVisible(false)` hides its button and, if it was active, falls through to
+  another visible sub tab.
+- Search works across sub tabs. Sub tabs whose elements do not match the query have their
+  buttons hidden, and if the active sub tab has no matches the search jumps to one that
+  does.
+- Warning boxes still belong to the parent tab (`Tab:UpdateWarningBox`), and the sub tab
+  content is offset below both the warning box and the button row.
+
+### Related tab members
+
+- `Tab.SubTabs` — `{ [Name]: SubTab }`
+- `Tab.ActiveSubTab` — the visible sub tab, or `nil`
+- `Tab:GetContentOffset()` — pixels reserved at the top of the tab by the warning box and
+  the sub tab row
+- `Tab:IsExpanded()`, `Tab:SetExpanded(Value?)`, `Tab:ToggleExpanded()` — the nested list
+- `Library:GetActiveSides()` — the `ScrollingFrame`s currently on screen; returns the
+  active sub tab's sides when there is one, otherwise the active tab's. Prefer this over
+  `Library.ActiveTab.Sides`, which is wrong whenever sub tabs are in use.
+
+## Header
+
+The header was reworked and differs from upstream in ways that affect script authors:
+
+- **The open tab is always named in the header.** Upstream only showed the header tab info
+  when a tab was given a `Description`; here the bold tab name is always shown, with the
+  description as a smaller faded second line when there is one. Give tabs a `Description`
+  to fill that second line:
+  `Window:AddTab({ Name = "Main", Icon = "user", Description = "Main features" })`
+- `Window:ShowTabInfo(Name, Description)` accepts a `nil`/empty description and hides the
+  second line instead of leaving a blank one.
+- **The search box is a pill** (fully rounded, icon inset on the left, placeholder
+  `"Search..."`). It is registered in `Library.PillCorners` (see
+  [Pill corners](#pill-corners-corner-radius--dpi)), so it stays rounded at any radius
+  above 0 and squares off at 0.
+- `SearchbarSize` now defaults to `UDim2.fromScale(0.35, 1)` rather than
+  `UDim2.fromScale(1, 1)`, and the box no longer resizes itself when tab info appears —
+  the tab info grows to fill whatever the search box does not use. Pass your own
+  `SearchbarSize` to override.
+- A **notification bell** and (when `Minimizable`) a minimize button sit at the right of
+  the top bar — see [Notifications](#notifications--history) and [Minimize](#minimize).
+
+## Resizable sidebar
+
+The divider between the sidebar and the content is a **drag handle** — grab it and drag to
+widen or narrow the sidebar, and drag it small enough and it snaps to the compact
+icon-only width. **This fork enables it by default.** Turn it off with
+`EnableSidebarResize = false`.
+
+```lua
+Library:CreateWindow({
+    EnableSidebarResize = true,   -- default now true; false removes the drag handle
+    -- tuning (all optional):
+    MinSidebarWidth = 128,        -- clamped to >= 64
+    SidebarCompactWidth = 48,     -- clamped to >= 48
+    SidebarCollapseThreshold = 0.5, -- fraction between compact + min where it snaps compact
+    DisableCompactingSnap = false,  -- true = free resize, no snap to the compact width
+    CompactWidthActivation = ...,   -- width at/below which it reads as compact when snap is off
+    SidebarCompacted = false,       -- start compact
+})
+
+Window:SetSidebarWidth(px)
+Window:GetSidebarWidth()
+Window:SetCompact(true)            -- jump straight to the compact width
+Window:IsSidebarCompacted()
+```
+
+## Compact sidebar
+
+A compact sidebar is **icons only**: the window title, tab labels, and the sub-tab chevrons
+are hidden and the tab icons center in the narrow column. This is separate from
+[Minimize](#minimize) (which collapses the whole window) — compacting only narrows the
+sidebar.
+
+- **Sub tabs still appear.** The open tab's nested rows render as centered icon-only rows
+  under the parent icon (see [the sidebar list](#the-sidebar-list)). Expanding restores the
+  labels.
+- `Library.SidebarCompacted` is a live boolean reflecting the current state (also
+  `Window:IsSidebarCompacted()`).
+
+## Sidebar tooltips
+
+Sidebar tab and sub-tab buttons carry a tooltip of their name that **only shows while the
+sidebar is compact** — exactly when the label is hidden and you need it — so it never
+redundantly repeats a label you can already read. The styling is the ordinary tooltip look
+(no special colour), and it defaults to the tab's own name.
+
+```lua
+Window:AddTab({ Name = "Combat", Icon = "swords" })              -- tooltip "Combat" when compact
+Window:AddTab({ Name = "Combat", Icon = "swords", Tooltip = "Aim & fight" }) -- override the text
+```
+
+Sub tabs get the same automatically from their name. Under the hood this is the `"Sidebar"`
+variant of `Library:AddTooltip(Info, DisabledInfo, HoverInstance, Variant)` — the fourth
+argument is new; a `"Sidebar"` tooltip is gated to the compact sidebar, anything else shows
+normally.
+
+## Restyled toggles and sliders
+
+These changed shape from upstream, so screenshots and pixel expectations differ. The API is
+untouched — `AddToggle` and `AddSlider` take the same arguments and behave the same.
+
+**Toggle** is a 38×20 pill. Off, the track is a grey ramp (a `UIGradient` multiplying the
+track colour, landing on `#505050` → `#8A8A8A` against a white `FontColor`); on, it is the
+accent colour with a gentler ramp. The ball is `FontColor` with a shadow beneath it, and
+slides between the two ends. The track, ball, and shadow are pill corners, so they round at
+any radius above 0 and **square off into a boxy toggle at radius 0**.
+
+**Slider** puts its label top left and its value top right, above a pill shaped bar, with a
+ball riding the fill edge. The track is a grey ramp running light at the left to dark at
+the right — the opposite direction to the switch — so the filled part always reads brighter
+than the track that follows it. The filled part is the accent colour. The ball is **wider
+than the bar** — 18px against a 16px bar, growing to 24px while hovered or dragged on a Sine
+in-out curve — so it sits proud of the track, and the holder reserves margin for it to
+overflow into. It carries a shadow and a faint outline, and the bar has an inner outline: a
+ring inset by a pixel, since Roblox strokes sit outside the border and cannot be drawn
+inside one. The bar, fill, ball, and ball shadow are all pill corners, so the **slider dot
+squares off at radius 0** along with everything else.
+
+`Compact = true` sliders are unchanged: no ball, and the value stays centred in the bar,
+since there is no room for the two row layout.
+
+## Select All / Deselect All
+
+Multi select dropdowns get a built in row above their values with **Select All** and
+**Deselect All**, in both the inline list and the expanded panel. It skips disabled values,
+and while a search is typed it only touches the values matching that search.
+
+```lua
+Groupbox:AddDropdown("Materials", {
+    Values = Materials,
+    Multi = true,
+
+    SelectAllButtons = true, -- default; false removes the row
+})
+```
+
+Methods: `Dropdown:SelectAll(Search?)` and `Dropdown:DeselectAll(Search?)`. Both are multi
+only, both fire the callback once, and `DeselectAll` keeps one value picked when
+`AllowNull` is false.
+
+## Expandable dropdowns
+
+Every dropdown gets a small expand button beside its arrow. Clicking it opens all of the
+dropdown's values in a panel over the window — a dimmed overlay with a titled panel, an
+optional searchbar, and the values laid out in columns. It is the same dropdown underneath:
+selecting in the panel and selecting in the inline list run identical code, and both views
+stay in sync.
+
+```lua
+Groupbox:AddDropdown("Materials", {
+    Values = Materials,      -- long lists are what this is for
+    Multi = true,
+    Searchable = true,       -- gives the panel its own searchbar
+
+    Expandable = true,       -- default; false removes the expand button
+    ExpandColumns = 3,       -- default 2
+})
+```
+
+Closing: the panel's **X** button, clicking anywhere off the panel, or — when the dropdown
+is single select — picking a value. Multi select panels stay open so several values can be
+ticked in one visit.
+
+Methods: `Dropdown:Expand()`, `Dropdown:Collapse()`, `Dropdown:ToggleExpanded()`,
+`Dropdown:IsExpanded()`.
+
+Notes:
+- The panel's searchbar only exists when `Searchable = true`, and it is separate from the
+  inline searchbar — opening the panel clears it.
+- Only one dropdown can be expanded at a time; expanding one collapses another, and the
+  open inline menu is closed.
+- `Library.ActiveExpandedDropdown` holds the expanded dropdown, or `nil`.
+- The panel is parented to `Library.MainFrame` (this fork stores the window frame there so
+  elements defined outside `CreateWindow` can overlay it). If there is no window yet,
+  `Expand` does nothing.
+- `DisabledValues` render dimmed and unclickable in the panel, as in the inline list.
+
+## Priority dropdowns
+
+`Groupbox:AddPriorityDropdown(Idx, Info)` is a dropdown you never select in — you open it
+and drag values above and below one another to rank them. There is no checked/unchecked
+state; the whole point is the *order*. `Value` is the ordered array, highest priority first.
+
+```lua
+local Priority = Groupbox:AddPriorityDropdown("TargetPriority", {
+    Text = "Target Priority",
+    Values = { "Closest", "Lowest Health", "Highest Threat", "Aiming At Me" },
+
+    -- Optional initial order (highest first). Any Values you leave out are
+    -- appended at the bottom, so nothing is ever dropped.
+    Default = { "Aiming At Me", "Lowest Health" },
+
+    Searchable = true,   -- default; type to filter the list (drag is paused while filtered)
+    Expandable = true,   -- default; adds a button that opens a big panel over the window
+    MaxVisibleDropdownItems = 8,
+
+    Callback = function(Order)
+        -- Order is the ranked array, e.g. { "Aiming At Me", "Lowest Health", ... }
+    end,
+})
+```
+
+Each row shows a drag handle, its current rank number, and the value. Grab a row **anywhere**
+(the whole row is the handle, not just the icon) and drag up or down; the other rows slide
+out of the way and the rank numbers update live. The dragged row is clamped to the list and
+the canvas auto-scrolls when you drag near an edge, so rows can't be stranded off-screen.
+Releasing fires the callback once. Works with mouse or touch.
+
+**Expand panel.** Like the normal dropdown, there is an expand button beside the arrow (or
+call `PriorityDropdown:Expand()`). It opens the same ranked list in a large overlay panel
+with taller rows — easier to manage long lists and much easier to drag on mobile. It is the
+same `Value` underneath, so the inline menu and the panel stay in sync. Close it with the
+panel's **X**, by clicking off it, or `PriorityDropdown:Collapse()`. Only one expand panel
+(dropdown or priority dropdown) is open at a time.
+
+Methods: `PriorityDropdown:GetValue()` (a copy of the ordered array),
+`PriorityDropdown:SetValue(Order)`, `PriorityDropdown:SetValues(Values)`,
+`PriorityDropdown:OnChanged(fn)`, `PriorityDropdown:SetText(Text)`,
+`PriorityDropdown:SetDisabled(bool)`, `PriorityDropdown:SetVisible(bool)`,
+`PriorityDropdown:Expand()`, `PriorityDropdown:Collapse()`,
+`PriorityDropdown:IsExpanded()`, `PriorityDropdown:ToggleExpanded()`.
+
+Notes:
+- `SetValue` and `SetValues` normalise: unknown values are ignored, and known values you
+  omit keep their place at the bottom.
+- It saves/loads with SaveManager like any other option (stored as its ranked order).
+- Searching only reorders the *view*; the underlying priority order is untouched, which is
+  why dragging is disabled until the search box is cleared.
+- The expand panel is parented to `Library.MainFrame`; if there is no window yet, `Expand`
+  does nothing. It shares `Library.ActiveExpandedDropdown` with the normal dropdown.
+
+## Search v2
+
+Header search is case insensitive and treats the query as plain text. Characters that
+have meaning in a Lua pattern, such as `(`, `%`, `-`, `+`, and `[`, are searched
+literally and cannot make the search error.
+
+When the direct substring test misses, fuzzy search can match the query as a subsequence:
+the same characters must appear in the same order, but other characters may sit between
+them. Fuzzy matching defaults to on, only runs for queries with at least two non-whitespace
+characters, and ignores whitespace in the query. Set `FuzzySearch = false` to keep only
+literal substring matching.
+
+Value search also defaults to on. In addition to an element's label, search considers:
+
+- every dropdown entry, plus its current selection (including multi selections); a
+  dropdown's `FormatListValue` is used when it has one, falling back to
+  `FormatDisplayValue`, so the value is searched as it is displayed
+- an input's current value
+- a key picker's key name and mode, including a key picker attached to another element
+
+At most 100 dropdown entries are checked per element on each update, so a very large list
+does not stall the searchbar. Toggle and slider values, and colour picker values, are not
+searched.
+
+Container names participate too. Matching a groupbox name, a Tabbox tab name, or a nested
+sub tab name shows all of that container's normally visible contents. It does not bring
+back an element that the script explicitly hid.
+
+Press **Ctrl+F** while the window is open to focus the searchbar. The shortcut does not
+steal focus from another text box. While the searchbar is focused, **Escape** clears it
+and releases focus. The key half of the shortcut is configurable, but Ctrl is always
+required:
+
+```lua
+Library:CreateWindow({
+    FuzzySearch = true,
+    SearchValues = true,
+    SearchKeybind = Enum.KeyCode.F,
+    DisableSearchKeybind = false,
+})
+```
+
+These window options set `Library.FuzzySearch` and `Library.SearchValues`; both fields can
+also be changed directly. `DisableSearchKeybind = true` disables only the focus shortcut.
+`DisableSearch = true` removes search and makes both keyboard behaviours no-ops.
+`GlobalSearch` is separate: it still decides whether a query searches every top-level tab
+or only the active one.
+
+## Minimize
+
+The window can collapse to a small card rather than closing. The minimize button sits in
+the top right of the header, immediately left of the move icon, and the top bar reserves
+room for it. This is **not** the same as sidebar compacting (`Window:SetCompact`), which
+only narrows the sidebar and leaves the window at full size.
+
+```lua
+Library:CreateWindow({
+    Minimizable = true,                     -- default true, removes the button when false
+    MinimizeKeybind = Enum.KeyCode.RightBracket, -- optional, no default
+    MinimizedWidth = 300,
+    MinimizedSubtitle = "",  -- empty means "track the open tab"
+    AutoMinimize = false,    -- start collapsed to the pill on execution
+})
+
+Window:SetMinimized(true)
+Window:ToggleMinimized()
+Window:IsMinimized()
+```
+
+`AutoMinimize` collapses the window to its pill once, right after it is built, so a freshly
+executed script starts out of the way. It only fires when `Minimizable` is on, and is a
+one-time start state — the user can restore the window normally afterwards.
+
+**The card needs no setup.** It is part of the window, built whenever `Minimizable` is on,
+and fills itself in from what the window already knows. A script that never touches the
+minimize API still gets a working card.
+
+The card is fixed width and grows vertically to fit its contents. It has three parts:
+
+- a **header** with the window icon in a rounded badge, the title in bold, a smaller
+  subtitle beneath it, and a restore chevron on the right
+- a **body** of labels, hidden entirely until the script adds one
+- a **footer** showing the window footer, separated by a line
+
+The subtitle tracks the **open tab** by default, updating as tabs are switched. Passing
+`MinimizedSubtitle`, or calling `Window:SetMinimizedSubtitle`, takes it over; passing an
+empty string hands it back to the automatic tab name.
+
+The footer is the same value passed to `Footer` or `Window:SetFooter`, flattened to plain
+text; the card has no room for per segment copy buttons, so a list of segments is joined
+with spaces and none of it is copyable there.
+
+Labels are the one optional part, for status worth seeing while collapsed:
+
+```lua
+local Status = Window:AddMinimizedLabel("Idle")
+Status:SetText("Farming: 3 running")
+Status:SetVisible(false)
+Status:Destroy()
+
+Window:SetMinimizedSubtitle("0/3 connected")
+Window:SetMinimizedSubtitle("")          -- back to tracking the open tab
+Window:ClearMinimizedLabels()
+```
+
+The card opens at the window's last position rather than jumping to a corner, and restoring
+moves the window to wherever the card was dragged. It is dragged by its header, so the
+restore button still takes clicks. The keybind is ignored while a text box has focus, and
+both the card and the window stay hidden while the UI is toggled off, so minimizing never
+fights `Library:Toggle`. The card also mirrors the [notification bell](#notifications--history).
+
+## Copyable footer
+
+The footer is a row of segments, and each segment is either plain text or a copy target.
+A copyable segment is drawn in `Library.Scheme.BlueColor` at full opacity so it reads as a
+link, and gets its own small copy button; clicking the text or the button writes that
+segment to the clipboard and flips the icon to a check for about 1.5 seconds. Plain
+segments keep the usual 50% faded white.
+
+### A single string
+
+`Footer` accepts a plain string, and `CopyableFooter` (default `true`) decides whether the
+whole thing is copyable:
+
+```lua
+Library:CreateWindow({
+    Footer = "version: example",
+    CopyableFooter = true,   -- false gives the plain grey footer
+})
+```
+
+### Mixed plain and copyable text
+
+Pass a list instead. **Bare strings are plain text**, and a table segment is only copyable
+when it says `Copyable = true` — copyability is opt in per segment, and `CopyableFooter`
+does not apply to this form:
+
+```lua
+Library:CreateWindow({
+    Footer = {
+        "version: example |",                                   -- plain
+        { Text = "discord.gg/mspaint", Copyable = true },        -- blue + copy button
+        "|",
+        { Text = "user id", Copyable = true, CopyText = "123" }, -- copies CopyText
+    },
+})
+```
+
+Segment fields: `Text` (shown), `Copyable` (defaults to `false` in list form), `CopyText`
+(what lands on the clipboard, defaults to `Text` — use it when the label should not be the
+copied value).
+
+Segments are laid out in a centered horizontal row with 6px between them, so put any
+separators (`"|"`, `"-"`) in as their own plain segments.
+
+### Runtime and caveats
+
+- `Window:SetFooter(Footer)` takes either form and rebuilds the row, replacing whatever was
+  there. It used to accept only a string.
+- The clipboard writer is resolved once at load as
+  `setclipboard or toclipboard or syn.write_clipboard`. If the executor exposes none of
+  them, every segment falls back to plain text and no copy buttons are created — do not
+  assume they exist.
+
+## Watermark status bar
+
+The watermark is a **segmented status bar** floating over the game (upstream's is a single
+line of text). Each segment has an optional icon and a `Text` that is either a string or a
+**function** — function segments auto-refresh on an interval, so ping / FPS / clock update
+themselves.
+
+```lua
+local Watermark = Library:AddWatermark({
+    { Player = LocalPlayer },                 -- avatar + display name (NameType = "Username" for the account name)
+    { Icon = "flame", Text = "mspaint", Accent = true }, -- Accent tints this segment
+    { Icon = "cpu",  Text = function() return identifyexecutor and identifyexecutor() or "Unknown" end },
+    { Icon = "wifi", Text = function() return string.format("%d ms", GetPing()) end },
+    { Icon = "clock", Text = function() return os.date("%H:%M") end },
+})
+
+Watermark.RefreshRate = 1   -- seconds between refreshes of the function segments
+```
+
+Segment fields: `Text` (string or `() -> string`), `Icon` (lucide name), `Accent` (tint
+this segment with the accent colour), and `Player` / `PlayerCard` (render a
+[player card](#player-cards) avatar + name; `NameType = "Username"` swaps display name for
+the account name). Function segments are re-evaluated every `RefreshRate` seconds.
+
+## Player cards
+
+`AddPlayerInfo` renders a Roblox player as a card — avatar plus optional title and
+description. It has **two forms decided by where you add it**:
+
+- on a **tab** → a **full-width banner** above both columns
+- on a **groupbox** → the **compact form**, just the avatar box
+
+```lua
+-- Banner on a tab
+Tab:AddPlayerInfo("HomeBanner", {
+    -- Defaults to the local player; pass Player = <Player> or UserId = <id> for someone else.
+    Title = "Welcome to the <b>ObsidianUltra</b> example",   -- RichText
+    Description = {                                           -- string OR a list of lines
+        '<font color="#8f6bff">Home</font> — player card + features',
+        '<font color="#8f6bff">Elements</font> — every element type',
+    },
+    ThumbnailType = "HeadShot",   -- "HeadShot" | "Bust" | "Avatar"
+    Height = 84,                  -- minimum height; the banner grows to fit the description
+})
+
+-- Compact avatar inside a groupbox
+Groupbox:AddPlayerInfo("Profile", { ThumbnailType = "Bust", Height = 190 })
+```
+
+The banner's **height grows to fit its description** — a long or multi-line description no
+longer spills past the card, and `Height` acts as the minimum. Description entries can be a
+divider (a lone dividing rule between lines).
+
+Info fields: `Player` / `UserId` (who; defaults to the local player), `Title`, `Description`
+(string or `{ string }`, RichText), `ThumbnailType`, `Thumbnail` (a custom icon overriding
+the avatar), `Height`, `Visible`.
+
+Methods: `SetTitle`, `SetDescription`, `SetPlayer`, `SetUserId`, `SetThumbnail`,
+`SetHeight`, `SetVisible`, `GetTotalHeight`.
+
+## Notifications & history
+
+`Library:Notify` is extended and notifications are **remembered** in a history panel opened
+from a bell in the header.
+
+```lua
+Library:Notify({
+    Title = "Key System",
+    Description = "Received: Banana",
+    Time = 4,                       -- 0/omit with Persist for a sticky toast
+    Type = "Success",               -- "Error" | "Warning" | "Success" | "Info" — colours the text
+    Icon = "check",
+    SoundId = nil,
+})
+```
+
+Beyond upstream, `Notify` accepts `Type` (colours the primary text via
+`Library.NotificationTypeColors`), `Persist` (keep it until dismissed), `Steps` (a
+progress-style update), `Icon` / `BigIcon` / `IconColor`, and `TitleColor` /
+`DescriptionColor`.
+
+**History**: every notification is pushed onto `Library.NotificationHistory` (newest first,
+capped at `NotificationHistoryLimit`, default 100). The header **bell** opens a panel
+listing them, with an unread badge; the bell is mirrored into the minimized card.
+
+```lua
+Library:GetNotificationHistory()
+Library:ClearNotificationHistory()
+Library:ToggleNotificationHistory()
+Library:SetNotificationHistoryVisible(true)
+Library:SetNotifySide("Right")            -- "Left" | "Right"; also the NotifySide window option
+
+Library:CreateWindow({
+    NotifySide = "Right",
+    NotificationHistoryLimit = 100,
+    NotificationHistoryKeybind = Enum.KeyCode.RightAlt,  -- opens/closes the panel
+})
+```
+
+`Library.NotificationTypeColors` is a `{ [string]: Color3 }` you can recolour
+(`Error`/`Warning`/`Success`/`Info`).
+
+## Tooltips
+
+Tooltips **pop in with a smooth animation** rather than snapping: an ease-out fade plus a
+subtle scale-up (`0.85 → 1`) on show over ~0.22s, and a quick fade + settle on hide. It
+drives a dedicated `UIScale` kept out of the DPI scale pass, so it never fights DPI scaling,
+and a generation guard keeps the shared tooltip stable when the pointer sweeps from one
+element straight to the next.
+
+`Library:AddTooltip(Info, DisabledInfo, HoverInstance, Variant?)` takes a new fourth
+argument. `Variant = "Sidebar"` gates the tooltip to the compact sidebar (used by tab and
+sub-tab buttons — see [Sidebar tooltips](#sidebar-tooltips)); any other value (or none) is a
+normal always-on tooltip. Elements that already expose `Tooltip` / `DisabledTooltip`
+(toggles, sliders, inputs, buttons, dropdowns, key/colour pickers) are unchanged.
+
+## Pill corners, corner radius & DPI
+
+This fork adds a **third corner list**, `Library.PillCorners`, alongside the existing
+`Library.Corners` and `Library.SpecificCorners`. Anything registered as a pill corner stays
+**fully rounded at any corner radius above 0** and goes **square at radius 0**, so pills
+still obey `Window:SetCornerRadius(0)`.
+
+Pill-cornered elements: the search box, buttons, slider bars/fills/balls, and toggle
+tracks/balls. Keybind buttons are deliberately **not** pills — their menu attaches to the
+right edge and squares those corners off while open.
+
+```lua
+Window:SetCornerRadius(0)   -- 0..20; squares pills, halves specific corners
+Library:SetDPIScale(100)    -- percent; scales the whole UI via Library.Scales
+```
+
+`Window:SetCornerRadius` updates every registered corner in one pass: full corners follow
+the radius, "half" corners follow half of it, and pill corners round or square as above.
+
+## Scheme.BlueColor
+
+This fork adds one scheme colour, used for the footer highlight and available to your own
+elements:
+
+- `Library.Scheme.BlueColor`, default `Color3.fromRGB(80, 155, 255)`
+- Alias `"Blue"` — any property that accepts a scheme string accepts `"Blue"` or
+  `"BlueColor"`, and it re-colours automatically when the theme changes
+- `ThemeManager` preserves it across theme swaps, like `RedColor` and `DarkColor`
+
+---
+
+## Unsupported-executor gate
+
+`Library:CreateUnsupportedScreen(Info)` gates a script behind a supported-executor check.
+It detects the running executor with `identifyexecutor()`, and if that executor is
+unsupported it spawns a **real, locked-down Obsidian window** — fixed small size,
+non-resizable, no sidebar resize, no minimize, no search — and returns a handle. If the
+executor *is* supported it builds nothing and returns `nil`, so you can gate with a single
+guard:
+
+```lua
+if Library:CreateUnsupportedScreen({ Unsupported = { "Swift", "Codex" } }) then
+    return -- unsupported: the gate window is showing, stop here
+end
+-- supported: continue building your real UI
+```
+
+The window is built on `Library:CreateWindow` (fixed `660×320`, `Resizable = false`,
+`EnableSidebarResize = false`, `Minimizable = false`, `DisableSearch = true`,
+`DisableNotificationBell = true`, `Center`, `AutoShow`) with one `Unsupported` tab holding an
+**Executor** groupbox on the left (name + "not supported") and an **Information** groupbox on
+the right with numbered points.
+
+The Executor groupbox also holds a built-in **Language** dropdown that live-translates the
+gate's own copy (heading, sub-line, the two default information points, and the dropdown's
+own label). Bundled languages: English, Filipino, Tiếng Việt, Bahasa Indonesia, Русский, ไทย,
+Deutsch. A caller-supplied `Information` is shown verbatim — switching language then only
+re-translates the heading and sub-line.
+
+`DisableNotificationBell` is a general `CreateWindow` option (default `false`) that hides the
+top-bar notification-history bell; the gate turns it on so the locked-down window has no
+notification control.
+
+`Info` fields (all optional):
+
+- `Title` — window title (default `"Unsupported"`)
+- `Icon` — window icon (Lucide name or asset id), e.g. `"shield-alert"`
+- `Executor` — override the detected executor name
+- `Unsupported: {string}` — blocklist; unsupported if the detected name contains any entry
+- `Supported: {string}` — whitelist; if given, unsupported = *not* in it (wins over `Unsupported`)
+- `Information` — `{string}` (auto-numbered) or `{{Title?, Text}}`; defaults to the two
+  standard points (environment / use another executor)
+- `Footer` — defaults to `Library.Footer` (the normal UI's footer)
+- `AlwaysOnTop` — keep the gate above other GUIs
+
+Matching is a **case-insensitive substring** test against `identifyexecutor()`. With neither
+list, the screen always shows (the caller has already decided to gate). The returned handle
+is `{ Executor, Window, Destroyed, Destroy() }`; `:Destroy()` unloads the library.
+
+```lua
+local Gate = Library:CreateUnsupportedScreen({
+    Title = "mspaint",
+    Icon = "shield-alert",
+    Supported = { "Potassium", "Volt", "Real", "Opiumware", "Delta" },
+})
+if Gate then return end
+```
