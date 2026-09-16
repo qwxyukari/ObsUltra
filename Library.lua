@@ -8459,6 +8459,7 @@ InputTextBox = New("TextBox", {
 
             UpdateLabelPosition()
         end
+		end
 
         function Slider:OnChanged(Func)
             Slider.Changed = Func
