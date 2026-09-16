@@ -8562,6 +8562,7 @@ else
     FillCorner.TopRightRadius = Zero
     FillCorner.BottomRightRadius = Zero
 end
+end
 
         function Slider:OnChanged(Func)
             Slider.Changed = Func
