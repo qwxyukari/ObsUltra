@@ -7782,13 +7782,13 @@ do
             ZIndex = 1,
             Parent = BallHolder,
         })
-        table.insert(
-            Library.PillCorners,
+        --table.insert(
+           -- Library.PillCorners,
             New("UICorner", {
                 CornerRadius = SwitchPillRadius,
                 Parent = BallShadow,
             })
-        )
+        --)
 
         local Ball = New("Frame", {
             AnchorPoint = Vector2.new(0.5, 0.5),
@@ -7799,13 +7799,13 @@ do
             ZIndex = 2,
             Parent = BallHolder,
         })
-        table.insert(
-            Library.PillCorners,
+       -- table.insert(
+           --Library.PillCorners,
             New("UICorner", {
                 CornerRadius = SwitchPillRadius,
                 Parent = Ball,
             })
-        )
+        --)
 
         function Toggle:UpdateColors()
             Toggle:Display()
