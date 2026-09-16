@@ -161,6 +161,133 @@ do
     end
 end
 
+--// Font Manager \\--
+local CustomFontManager = {}
+local CustomFontManagerAssets = {
+    Verdana = {
+        FileName = "Verdana-Font.ttf",
+        URL = "https://github.com/qwxyukari/storage/raw/refs/heads/main/fonts/Verdana-Font.ttf",
+        Font = nil,
+    },
+}
+
+do
+    local function RecursiveCreatePath(Path: string, IsFile: boolean?)
+        if not isfolder or not makefolder then
+            return
+        end
+
+        local Segments = Path:split("/")
+        local TraversedPath = ""
+
+        if IsFile then
+            table.remove(Segments, #Segments)
+        end
+
+        for _, Segment in ipairs(Segments) do
+            if not isfolder(TraversedPath .. Segment) then
+                makefolder(TraversedPath .. Segment)
+            end
+
+            TraversedPath = TraversedPath .. Segment .. "/"
+        end
+
+        return TraversedPath
+    end
+
+    function CustomFontManager.DownloadFont(AssetName: string, ForceRedownload: boolean?)
+        if not getcustomasset or not writefile or not isfile then
+            return false, "missing functions"
+        end
+
+        local AssetData = CustomFontManagerAssets[AssetName]
+        if not AssetData then
+            return false, "unknown font"
+        end
+
+        local Path = string.format("Obsidian/fonts/%s", AssetData.FileName)
+        AssetData.Path = Path
+
+        RecursiveCreatePath(Path, true)
+
+        if ForceRedownload ~= true and isfile(Path) then
+            return true, nil
+        end
+
+        local Success, ErrorMessage = pcall(function()
+            writefile(Path, game:HttpGet(AssetData.URL))
+        end)
+
+        return Success, ErrorMessage
+    end
+
+    --// Registers the downloaded .ttf as a Roblox "Font" object and caches it
+    function CustomFontManager.RegisterFont(AssetName: string, Weight: number?, Style: string?)
+        local AssetData = CustomFontManagerAssets[AssetName]
+        if not AssetData then
+            return nil
+        end
+
+        if AssetData.Font then
+            return AssetData.Font
+        end
+
+        if not getcustomasset or not writefile or not isfile then
+            return nil
+        end
+
+        local Path = AssetData.Path or string.format("Obsidian/fonts/%s", AssetData.FileName)
+        if not isfile(Path) then
+            return nil
+        end
+
+        local FontFileName = string.format("Obsidian/fonts/%s.font", AssetName)
+        if isfile(FontFileName) then
+            delfile(FontFileName)
+        end
+
+        local Data = {
+            name = AssetName,
+            faces = {
+                {
+                    name = "Normal",
+                    weight = Weight or 400,
+                    style = Style or "Normal",
+                    assetId = getcustomasset(Path),
+                },
+            },
+        }
+
+        local Ok = pcall(function()
+            writefile(FontFileName, game:GetService("HttpService"):JSONEncode(Data))
+        end)
+
+        if not Ok then
+            return nil
+        end
+
+        local Success, FontObject = pcall(function()
+            return Font.new(getcustomasset(FontFileName), Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+        end)
+
+        if not Success or not FontObject then
+            return nil
+        end
+
+        AssetData.Font = FontObject
+        return FontObject
+    end
+
+    --// Silent background download so RegisterFont has something to work with
+    if getcustomasset and writefile and isfile then
+        task.spawn(function()
+            for AssetName, _ in CustomFontManagerAssets do
+                CustomFontManager.DownloadFont(AssetName)
+            end
+        end)
+    end
+end
+
 local Library = {
     LocalPlayer = LocalPlayer,
     IsRobloxFocused = true,
@@ -329,6 +456,7 @@ local Library = {
 
     --// Image Manager \\--
     ImageManager = CustomImageManager,
+	FontManager = CustomFontManager,
 
     --// Misc \\--
     Notify = nil, Toggle = nil -- we love luau lsp
