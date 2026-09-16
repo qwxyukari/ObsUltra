@@ -8317,7 +8317,6 @@ do
             AnchorPoint = Vector2.new(0, 1),
             --// Same grey material as the switch track, rather than near black
             BackgroundColor3 = Info.Compact and "MainColor" or "FontColor",
-			ClipsDescendants = true, -- added
             Position = Info.Compact and UDim2.fromScale(0, 1)
                 or UDim2.new(0, 0, 1, -SLIDER_BALL_MARGIN),
             Size = UDim2.new(1, 0, 0, Info.Compact and 15 or SLIDER_BAR_HEIGHT),
@@ -8531,9 +8530,9 @@ end
                 end
             end
 
-local X = (Slider.Value - Slider.Min) / (Slider.Max - Slider.Min)
-Fill.Visible = X > 0.001
-Fill.Size = UDim2.fromScale(X, 1)
+local X = (Slider.Value - Slider.Min) / (Slider.Max - Slider.Min) ---
+Fill.Visible = X > 0.001 ---
+Fill.Size = UDim2.fromScale(X, 1) ---
         end
 
         function Slider:OnChanged(Func)
