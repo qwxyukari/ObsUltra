@@ -8423,8 +8423,6 @@ do
                 Transparency = 0.75,
                 Parent = Ball,
             })
-			Ball.Visible = false
-BallShadow.Visible = false
         end
 
         --// Pill shaped bar and fill, squaring off with everything else at radius 0
