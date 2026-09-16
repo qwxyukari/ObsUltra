@@ -8324,13 +8324,14 @@ do
             Text = "",
             Parent = Holder,
         })
+		
 		New("UIPadding", {
-		PaddingBottom = UDim.new(3, 15),
-		PaddingTop = UDim.new(3, 15),
-		PaddingLeft = UDim.new(0, 15),
-		PaddingRight = UDim.new(0, 15),
-		Parent = Bar,
-		})
+    PaddingBottom = UDim.new(0, 3),
+    PaddingTop = UDim.new(0, 3),
+    PaddingLeft = UDim.new(0, 3),
+    PaddingRight = UDim.new(0, 3),
+    Parent = Bar,
+})
 
         New("UIStroke", {
             Color = "OutlineColor",
