@@ -8281,7 +8281,7 @@ do
 
         local Holder = New("Frame", {
             BackgroundTransparency = 1,
-            Size = UDim2.new(1, 0, 0, Info.Compact and 15 or 33),
+            Size = UDim2.new(1, 0, 0, Info.Compact and 15 or 25),
             Visible = Slider.Visible,
             Parent = Container,
         })
