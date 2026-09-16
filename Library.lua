@@ -8419,7 +8419,7 @@ do
 
             local FillWidthPx = Bar.AbsoluteSize.X * X
             local TextWidthPx = DisplayLabel.AbsoluteSize.X
-            local FitsOnLeft = FillWidthPx >= TextWidthPx - 7
+            local FitsOnLeft = FillWidthPx >= TextWidthPx - 27
 
             if FitsOnLeft then
                 DisplayLabel.AnchorPoint = Vector2.new(1, 0.5)
