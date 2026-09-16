@@ -8389,7 +8389,74 @@ do
             Parent = Bar,
         })
 
+        --// Ball riding the fill edge. Not shown in compact, which has no room.
+        local Ball
+        local BallShadow
+        local BallActive = false
+        if not Info.Compact then
+            --// Roblox strokes sit outside the border, so the inner outline is a
+            --// ring inset by a pixel rather than a stroke on the bar itself
+            local InnerOutline = New("Frame", {
+                AnchorPoint = Vector2.new(0.5, 0.5),
+                BackgroundTransparency = 1,
+                Position = UDim2.fromScale(0.5, 0.5),
+                Size = UDim2.new(1, -2, 1, -2),
+                ZIndex = Bar.ZIndex + 2,
+                Parent = Bar,
+            })
+            table.insert(
+                Library.PillCorners,
+                New("UICorner", {
+                    CornerRadius = Library.CornerRadius > 0 and UDim.new(1, 0) or UDim.new(0, 0),
+                    Parent = InnerOutline,
+                })
+            )
+            New("UIStroke", {
+                Color = "DarkColor",
+                Transparency = 0.7,
+                Parent = InnerOutline,
+            })
 
+            BallShadow = New("Frame", {
+                AnchorPoint = Vector2.new(0.5, 0.5),
+                BackgroundColor3 = "DarkColor",
+                BackgroundTransparency = 0.55,
+                --Position = UDim2.new(0, 0, 0.5, 1),
+                --Size = UDim2.fromOffset(SLIDER_BALL_SIZE, SLIDER_BALL_SIZE),
+                --ZIndex = Bar.ZIndex + 3,
+                Parent = Bar,
+            })
+            table.insert(
+                Library.PillCorners,
+                New("UICorner", {
+                    CornerRadius = Library.CornerRadius > 0 and UDim.new(1, 0) or UDim.new(0, 0),
+                    Parent = BallShadow,
+                })
+            )
+
+            Ball = New("Frame", {
+                AnchorPoint = Vector2.new(0.5, 0.5),
+                BackgroundColor3 = "FontColor",
+                --Position = UDim2.fromScale(0, 0.5),
+                --Size = UDim2.fromOffset(SLIDER_BALL_SIZE, SLIDER_BALL_SIZE),
+                --ZIndex = Bar.ZIndex + 4,
+                Parent = Bar,
+            })
+            table.insert(
+                Library.PillCorners,
+                New("UICorner", {
+                    CornerRadius = Library.CornerRadius > 0 and UDim.new(1, 0) or UDim.new(0, 0),
+                    Parent = Ball,
+                })
+            )
+            New("UIStroke", {
+                Color = "DarkColor",
+                Transparency = 0.75,
+                Parent = Ball,
+            })
+			Ball.Visible = false
+            BallShadow.Visible = false
+        end
 
         --// Pill shaped bar and fill, squaring off with everything else at radius 0
         table.insert(
@@ -8494,13 +8561,7 @@ do
             end
 
             --// Nudged inward at the ends so the ball never hangs off the bar
-            local Size = BallActive and SLIDER_BALL_SIZE_ACTIVE or SLIDER_BALL_SIZE
-            local Edge = UDim.new(X, (0.5 - X) * Size)
-
-            --// The fill runs to the middle of the ball rather than to the raw
-            --// value, so the ball always covers its rounded cap. Ending them at
-            --// different places leaves a notch between the two at low values.
-            Fill.Size = UDim2.new(Edge.Scale, Edge.Offset, 1, 0)
+Fill.Size = UDim2.fromScale(X, 1)
 
             local Position = UDim2.new(Edge.Scale, Edge.Offset, 0.5, 0)
             Ball.Position = Position
