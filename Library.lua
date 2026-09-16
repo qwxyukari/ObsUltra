@@ -251,7 +251,7 @@ do
             faces = {
                 {
                     name = "Normal",
-                    weight = Weight or 400,
+                    weight = Weight or 800,
                     style = Style or "Normal",
                     assetId = getcustomasset(Path),
                 },
