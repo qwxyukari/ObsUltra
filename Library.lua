@@ -8313,18 +8313,18 @@ do
             Parent = Bar,
         })
 
-        local DisplayLabel = New("TextLabel", {
-            AnchorPoint = Vector2.new(1, 0.5),
-            AutomaticSize = Enum.AutomaticSize.X,
-            BackgroundTransparency = 1,
-            Position = UDim2.new(0.5, -6, 0.5, 0),
-            Size = UDim2.new(0, 0, 1, 0),
-            Text = "",
-            TextSize = 14,
-            TextXAlignment = Enum.TextXAlignment.Right,
-            ZIndex = Bar.ZIndex + 2,
-            Parent = Bar,
-        })
+local DisplayLabel = New("TextLabel", {
+    AnchorPoint = Vector2.new(0.5, 0.5),
+    AutomaticSize = Enum.AutomaticSize.X,
+    BackgroundTransparency = 1,
+    Position = UDim2.new(0, 0, 0.5, 0),
+    Size = UDim2.new(0, 0, 1, 0),
+    Text = "",
+    TextSize = 14,
+    TextXAlignment = Enum.TextXAlignment.Center,
+    ZIndex = Bar.ZIndex + 2,
+    Parent = Bar,
+})
         New("UIStroke", {
             ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual,
             Color = "DarkColor",
@@ -8335,19 +8335,19 @@ do
         local InputTextBox
         local InputTextBoxStroke
         if Info.AllowRightClickInput then
-            InputTextBox = New("TextBox", {
-                AnchorPoint = Vector2.new(1, 0.5),
-                BackgroundTransparency = 1,
-                Position = UDim2.new(0.5, -6, 0.5, 0),
-                Size = UDim2.new(0, 60, 1, 0),
-                Text = "",
-                TextSize = 14,
-                TextXAlignment = Enum.TextXAlignment.Right,
-                ZIndex = Bar.ZIndex + 3,
-                Visible = false,
-                ClearTextOnFocus = false,
-                Parent = Bar,
-            })
+InputTextBox = New("TextBox", {
+    AnchorPoint = Vector2.new(0.5, 0.5),
+    BackgroundTransparency = 1,
+    Position = UDim2.new(0, 0, 0.5, 0),
+    Size = UDim2.new(0, 60, 1, 0),
+    Text = "",
+    TextSize = 14,
+    TextXAlignment = Enum.TextXAlignment.Center,
+    ZIndex = Bar.ZIndex + 3,
+    Visible = false,
+    ClearTextOnFocus = false,
+    Parent = Bar,
+})
             InputTextBoxStroke = New("UIStroke", {
                 ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual,
                 Color = "DarkColor",
@@ -8416,32 +8416,41 @@ do
             local X = (Slider.Value - Slider.Min) / (Slider.Max - Slider.Min)
             Fill.Size = UDim2.fromScale(X, 1)
 
+            local function UpdateLabelPosition()
+                local BarWidth = Bar.AbsoluteSize.X
+                local TextWidth = DisplayLabel.AbsoluteSize.X
 
-            local FillWidthPx = Bar.AbsoluteSize.X * X
-            local TextWidthPx = DisplayLabel.AbsoluteSize.X
-            local FitsOnLeft = FillWidthPx >= TextWidthPx - 6
-
-            if FitsOnLeft then
-                DisplayLabel.AnchorPoint = Vector2.new(1, 0.5)
-                DisplayLabel.Position = UDim2.new(X, -2, 0.5, 0)
-                DisplayLabel.TextXAlignment = Enum.TextXAlignment.Right
-
-                if Info.AllowRightClickInput and InputTextBox then
-                    InputTextBox.AnchorPoint = Vector2.new(1, 0.5)
-                    InputTextBox.Position = UDim2.new(X, -6, 0.5, 0)
-                    InputTextBox.TextXAlignment = Enum.TextXAlignment.Right
+                if BarWidth <= 0 then
+                    return
                 end
-            else
-                DisplayLabel.AnchorPoint = Vector2.new(0, 0.5)
-                DisplayLabel.Position = UDim2.new(X, 2, 0.5, 0)
-                DisplayLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+                if TextWidth <= 0 then
+                    task.defer(UpdateLabelPosition)
+                    return
+                end
+
+                local TargetX = X * BarWidth
+                local HalfText = TextWidth / 2
+
+                if TargetX - HalfText < 0 then
+                    TargetX = HalfText
+
+                elseif TargetX + HalfText > BarWidth then
+                    TargetX = BarWidth - HalfText
+                end
+
+                local ScaleX = TargetX / BarWidth
+
+                TweenService:Create(DisplayLabel, Library.TweenInfo, {
+                    Position = UDim2.new(ScaleX, 0, 0.5, 0),
+                }):Play()
 
                 if Info.AllowRightClickInput and InputTextBox then
-                    InputTextBox.AnchorPoint = Vector2.new(0, 0.5)
-                    InputTextBox.Position = UDim2.new(X, 6, 0.5, 0)
-                    InputTextBox.TextXAlignment = Enum.TextXAlignment.Left
+                    InputTextBox.Position = UDim2.new(ScaleX, 0, 0.5, 0)
                 end
             end
+
+            UpdateLabelPosition()
         end
 
         function Slider:OnChanged(Func)
