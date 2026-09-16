@@ -8281,45 +8281,29 @@ do
 
         local Holder = New("Frame", {
             BackgroundTransparency = 1,
-            Size = UDim2.new(
-                1,
-                0,
-                0,
-                Info.Compact and 15 or (22 + SLIDER_BAR_HEIGHT + SLIDER_BALL_MARGIN)
-            ),
+            Size = UDim2.new(1, 0, 0, Info.Compact and 15 or 33),
             Visible = Slider.Visible,
             Parent = Container,
         })
 
-        --// Label on the left and value on the right, both above the bar
         local SliderLabel
-        local TopRow
         if not Info.Compact then
-            TopRow = New("Frame", {
-                BackgroundTransparency = 1,
-                Size = UDim2.new(1, 0, 0, 14),
-                Parent = Holder,
-            })
-
             SliderLabel = New("TextLabel", {
                 BackgroundTransparency = 1,
-                Size = UDim2.new(1, -70, 1, 0),
+                Size = UDim2.new(1, 0, 0, 14),
                 Text = Slider.Text,
                 TextSize = 14,
-                TextTruncate = Enum.TextTruncate.AtEnd,
                 TextXAlignment = Enum.TextXAlignment.Left,
-                Parent = TopRow,
+                Parent = Holder,
             })
         end
 
         local Bar = New("TextButton", {
             Active = not Slider.Disabled,
             AnchorPoint = Vector2.new(0, 1),
-            --// Same grey material as the switch track, rather than near black
-            BackgroundColor3 = Info.Compact and "MainColor" or "FontColor",
-            Position = Info.Compact and UDim2.fromScale(0, 1)
-                or UDim2.new(0, 0, 1, -SLIDER_BALL_MARGIN),
-            Size = UDim2.new(1, 0, 0, Info.Compact and 15 or SLIDER_BAR_HEIGHT),
+            BackgroundColor3 = "MainColor",
+            Position = UDim2.fromScale(0, 1),
+            Size = UDim2.new(1, 0, 0, 15),
             Text = "",
             Parent = Holder,
         })
@@ -8329,50 +8313,33 @@ do
             Parent = Bar,
         })
 
-        if not Info.Compact then
-            New("UIGradient", {
-                Color = ColorSequence.new(SLIDER_TRACK_GRADIENT_FROM, SLIDER_TRACK_GRADIENT_TO),
-                Parent = Bar,
-            })
-        end
-
-        --// Compact keeps the value inside the bar; otherwise it sits top right
         local DisplayLabel = New("TextLabel", {
-            AnchorPoint = Info.Compact and Vector2.new(0, 0) or Vector2.new(1, 0),
             BackgroundTransparency = 1,
-            Position = Info.Compact and UDim2.fromScale(0, 0) or UDim2.fromScale(1, 0),
-            Size = Info.Compact and UDim2.fromScale(1, 1) or UDim2.new(0, 70, 1, 0),
+            Size = UDim2.fromScale(1, 1),
             Text = "",
             TextSize = 14,
-            TextTransparency = Info.Compact and 0 or 0.4,
-            TextXAlignment = Info.Compact and Enum.TextXAlignment.Center or Enum.TextXAlignment.Right,
-            ZIndex = Bar.ZIndex + 3,
-            Parent = Info.Compact and Bar or TopRow,
+            ZIndex = Bar.ZIndex + 2,
+            Parent = Bar,
         })
-        if Info.Compact then
-            New("UIStroke", {
-                ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual,
-                Color = "DarkColor",
-                LineJoinMode = Enum.LineJoinMode.Miter,
-                Parent = DisplayLabel,
-            })
-        end
+        New("UIStroke", {
+            ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual,
+            Color = "DarkColor",
+            LineJoinMode = Enum.LineJoinMode.Miter,
+            Parent = DisplayLabel,
+        })
 
         local InputTextBox
         local InputTextBoxStroke
         if Info.AllowRightClickInput then
             InputTextBox = New("TextBox", {
-                AnchorPoint = DisplayLabel.AnchorPoint,
                 BackgroundTransparency = 1,
-                Position = DisplayLabel.Position,
-                Size = DisplayLabel.Size,
+                Size = UDim2.fromScale(1, 1),
                 Text = "",
                 TextSize = 14,
-                TextXAlignment = DisplayLabel.TextXAlignment,
-                ZIndex = Bar.ZIndex + 4,
+                ZIndex = Bar.ZIndex + 3,
                 Visible = false,
                 ClearTextOnFocus = false,
-                Parent = DisplayLabel.Parent,
+                Parent = Bar,
             })
             InputTextBoxStroke = New("UIStroke", {
                 ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual,
@@ -8389,97 +8356,21 @@ do
             Parent = Bar,
         })
 
-        --// Ball riding the fill edge. Not shown in compact, which has no room.
-        local Ball
-        local BallShadow
-        local BallActive = false
-        if not Info.Compact then
-            --// Roblox strokes sit outside the border, so the inner outline is a
-            --// ring inset by a pixel rather than a stroke on the bar itself
-            local InnerOutline = New("Frame", {
-                AnchorPoint = Vector2.new(0.5, 0.5),
-                BackgroundTransparency = 1,
-                Position = UDim2.fromScale(0.5, 0.5),
-                Size = UDim2.new(1, -2, 1, -2),
-                ZIndex = Bar.ZIndex + 2,
-                Parent = Bar,
-            })
-            table.insert(
-                Library.PillCorners,
-                New("UICorner", {
-                    CornerRadius = Library.CornerRadius > 0 and UDim.new(1, 0) or UDim.new(0, 0),
-                    Parent = InnerOutline,
-                })
-            )
-            New("UIStroke", {
-                Color = "DarkColor",
-                Transparency = 0.7,
-                Parent = InnerOutline,
-            })
-
-            BallShadow = New("Frame", {
-                AnchorPoint = Vector2.new(0.5, 0.5),
-                BackgroundColor3 = "DarkColor",
-                BackgroundTransparency = 0.55,
-                --Position = UDim2.new(0, 0, 0.5, 1),
-                --Size = UDim2.fromOffset(SLIDER_BALL_SIZE, SLIDER_BALL_SIZE),
-                --ZIndex = Bar.ZIndex + 3,
-                Parent = Bar,
-            })
-            table.insert(
-                Library.PillCorners,
-                New("UICorner", {
-                    CornerRadius = Library.CornerRadius > 0 and UDim.new(1, 0) or UDim.new(0, 0),
-                    Parent = BallShadow,
-                })
-            )
-
-            Ball = New("Frame", {
-                AnchorPoint = Vector2.new(0.5, 0.5),
-                BackgroundColor3 = "FontColor",
-                --Position = UDim2.fromScale(0, 0.5),
-                --Size = UDim2.fromOffset(SLIDER_BALL_SIZE, SLIDER_BALL_SIZE),
-                --ZIndex = Bar.ZIndex + 4,
-                Parent = Bar,
-            })
-            table.insert(
-                Library.PillCorners,
-                New("UICorner", {
-                    CornerRadius = Library.CornerRadius > 0 and UDim.new(1, 0) or UDim.new(0, 0),
-                    Parent = Ball,
-                })
-            )
-            New("UIStroke", {
-                Color = "DarkColor",
-                Transparency = 0.75,
-                Parent = Ball,
-            })
-			Ball.Visible = false
-BallShadow.Visible = false
-        end
-
-        --// Pill shaped bar and fill, squaring off with everything else at radius 0
         table.insert(
-            Library.PillCorners,
+            Library.Corners,
             New("UICorner", {
-                CornerRadius = Library.CornerRadius > 0 and UDim.new(1, 0) or UDim.new(0, 0),
+                CornerRadius = UDim.new(0, Library.CornerRadius / 2),
                 Parent = Bar,
             })
         )
 
-local FillCorner = New("UICorner", {
-    TopLeftRadius = UDim.new(0, 0),
-    TopRightRadius = UDim.new(0, 0),
-    BottomLeftRadius = UDim.new(0, 0),
-    BottomRightRadius = UDim.new(0, 0),
-    Parent = Fill,
-})
-
-        --// Grows the ball while hovered or dragged, per the design note. The fill
-        --// ends at the ball's centre, so it has to travel with it.
-local function SetBallActive(Active: boolean)
-    --// Ball is hidden, so there is nothing to grow
-end
+        table.insert(
+            Library.Corners,
+            New("UICorner", {
+                CornerRadius = UDim.new(0, Library.CornerRadius / 2),
+                Parent = Fill,
+            })
+        )
 
         function Slider:UpdateColors()
             if Library.Unloaded then
@@ -8530,38 +8421,9 @@ end
                 end
             end
 
-local X = (Slider.Value - Slider.Min) / (Slider.Max - Slider.Min)
-
-Fill.Visible = X > 0.001
-Fill.Size = UDim2.fromScale(X, 1)
-
-local FillRadius = (Info.Compact and 15 or SLIDER_BAR_HEIGHT) / 2
-local R = UDim.new(0, FillRadius)
-local Zero = UDim.new(0, 0)
-
-if Library.CornerRadius > 0 then
-    --// Left side always follows Bar's left cap. Roblox will clamp the radius
-    --// down for very narrow fills, which is exactly what we want — a small nub
-    --// that grows into the full cap.
-    FillCorner.TopLeftRadius = R
-    FillCorner.BottomLeftRadius = R
-
-    --// Right side is flat mid-range; it only rounds out at the very end so the
-    --// fully-filled state matches Bar's pill exactly.
-    if X >= 0.999 then
-        FillCorner.TopRightRadius = R
-        FillCorner.BottomRightRadius = R
-    else
-        FillCorner.TopRightRadius = Zero
-        FillCorner.BottomRightRadius = Zero
-    end
-else
-    FillCorner.TopLeftRadius = Zero
-    FillCorner.BottomLeftRadius = Zero
-    FillCorner.TopRightRadius = Zero
-    FillCorner.BottomRightRadius = Zero
-end
-end
+            local X = (Slider.Value - Slider.Min) / (Slider.Max - Slider.Min)
+            Fill.Size = UDim2.fromScale(X, 1)
+        end
 
         function Slider:OnChanged(Func)
             Slider.Changed = Func
@@ -8584,15 +8446,15 @@ end
         end
 
         function Slider:RunChanged()
+            if Slider.Disabled then
+                return
+            end
+
             Library:SafeCallback(Slider.Callback, Slider.Value)
             Library:SafeCallback(Slider.Changed, Slider.Value)
         end
 
         function Slider:SetValue(Str)
-            if Slider.Disabled then
-                return
-            end
-
             local Num = tonumber(Str)
             if not Num or Num == Slider.Value then
                 return
@@ -8692,6 +8554,10 @@ end
             end))
 
             table.insert(Slider.Connections, InputTextBox.Focused:Connect(function()
+                if Slider.Disabled then
+                    return
+                end
+
                 Library.Registry[InputTextBoxStroke].Color = "AccentColor"
                 TweenService:Create(InputTextBoxStroke, Library.TweenInfo, {
                     Color = Library.Scheme.AccentColor,
@@ -8699,6 +8565,10 @@ end
             end))
 
             table.insert(Slider.Connections, InputTextBox.FocusLost:Connect(function()
+                if Slider.Disabled then
+                    return
+                end
+
                 Library.Registry[InputTextBoxStroke].Color = "DarkColor"
                 TweenService:Create(InputTextBoxStroke, Library.TweenInfo, {
                     Color = Library.Scheme.DarkColor,
@@ -8739,15 +8609,15 @@ end
                 return
             end
 
-            for _, Side in Library:GetActiveSides() do
-                Side.ScrollingEnabled = false
+            if Library.ActiveTab then
+                for _, Side in Library.ActiveTab.Sides do
+                    Side.ScrollingEnabled = false
+                end
             end
 
             if Library.ActiveLoading and Library.ActiveLoading.Sidebar then
                 Library.ActiveLoading.Sidebar.Container.ScrollingEnabled = false
             end
-
-            SetBallActive(true)
 
             while IsDragInput(Input) and not Slider.Destroyed do
                 local Location = Mouse.X
@@ -8764,37 +8634,16 @@ end
                 RunService.RenderStepped:Wait()
             end
 
-            for _, Side in Library:GetActiveSides() do
-                Side.ScrollingEnabled = true
+            if Library.ActiveTab then
+                for _, Side in Library.ActiveTab.Sides do
+                    Side.ScrollingEnabled = true
+                end
             end
 
             if Library.ActiveLoading and Library.ActiveLoading.Sidebar then
                 Library.ActiveLoading.Sidebar.Container.ScrollingEnabled = true
             end
-
-            --// Stay grown if the cursor is still over the bar after the drag
-            SetBallActive(Library:MouseIsOverFrame(Bar, Mouse))
         end))
-
-        if Ball then
-            table.insert(
-                Slider.Connections,
-                Bar.MouseEnter:Connect(function()
-                    SetBallActive(true)
-                end)
-            )
-            table.insert(
-                Slider.Connections,
-                Bar.MouseLeave:Connect(function()
-                    --// A drag that left the bar keeps it grown until the mouse is up
-                    if UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) then
-                        return
-                    end
-
-                    SetBallActive(false)
-                end)
-            )
-        end
 
         if typeof(Slider.Tooltip) == "string" or typeof(Slider.DisabledTooltip) == "string" then
             Slider.TooltipTable = Library:AddTooltip(Slider.Tooltip, Slider.DisabledTooltip, Bar)
