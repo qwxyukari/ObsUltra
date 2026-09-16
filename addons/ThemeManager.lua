@@ -233,6 +233,31 @@ local function IsValidFolderPath(Name: string): boolean
     )
 end
 
+--// Resolves a font name string to a Font object. Prefers the Library's
+--// FontManager (custom .ttf) over Enum.Font so custom fonts like Verdana work.
+local function ResolveFontFromName(Name: string): Font?
+    if typeof(Name) ~= "string" or Name == "" then
+        return nil
+    end
+
+    local Library = ThemeManager.Library
+    local FontManager = Library and Library.FontManager
+
+    if FontManager and FontManager.RegisterFont then
+        local Custom = FontManager.RegisterFont(Name)
+        if Custom then
+            return Custom
+        end
+    end
+
+    local EnumFont = Enum.Font[Name]
+    if EnumFont then
+        return Font.fromEnum(EnumFont)
+    end
+
+    return nil
+end
+
 --// Contrast helpers \\--
 local function LinearizeChannel(Channel: number): number
     if Channel <= SrgbLinearThreshold then
@@ -532,15 +557,21 @@ function ThemeManager:SetDefaultTheme(Theme: any)
     --// Font
     local FontFace = Theme["FontFace"]
     local FontFaceType = typeof(FontFace)
-    
+
     if FontFaceType == "EnumItem" then
         LibraryScheme.Font = Font.fromEnum(FontFace)
         FinalTheme.FontFace = FontFace.Name
 
     elseif FontFaceType == "string" then
-        LibraryScheme.Font = Font.fromEnum(Enum.Font[FontFace] :: Enum.Font)
-        FinalTheme.FontFace = FontFace
-    
+        local ResolvedFont = ResolveFontFromName(FontFace)
+        if ResolvedFont then
+            LibraryScheme.Font = ResolvedFont
+            FinalTheme.FontFace = FontFace
+        else
+            LibraryScheme.Font = Font.fromEnum(Enum.Font.Code)
+            FinalTheme.FontFace = "Code"
+        end
+
     else
         LibraryScheme.Font = Font.fromEnum(Enum.Font.Code)
         FinalTheme.FontFace = "Code"
@@ -737,8 +768,12 @@ function ThemeManager:ApplyThemeData(ThemeData: any): (boolean, string?)
         local FinalValue = Value
 
         if Index == "FontFace" then
-            if typeof(Value) ~= "string" or not Enum.Font[Value] then continue end
-            ThemeManager.Library:SetFont(Enum.Font[Value])
+            if typeof(Value) ~= "string" then continue end
+
+            local ResolvedFont = ResolveFontFromName(Value)
+            if not ResolvedFont then continue end
+
+            ThemeManager.Library:SetFont(ResolvedFont)
 
         elseif Index == "BackgroundImage" then
             if typeof(Value) ~= "string" then continue end
@@ -1217,7 +1252,12 @@ function ThemeManager:CreateThemeManager(Themesbox: any)
     AccentColor:OnChanged(UpdateTheme)
     OutlineColor:OnChanged(UpdateTheme)
     FontColor:OnChanged(UpdateTheme)
-    FontFace:OnChanged(function(Value) ThemeManager.Library:SetFont(Enum.Font[Value]) end)
+    FontFace:OnChanged(function(Value)
+    local ResolvedFont = ResolveFontFromName(Value)
+    if ResolvedFont then
+        ThemeManager.Library:SetFont(ResolvedFont)
+        end
+    end)
     BackgroundImage:OnChanged(function(Value) ThemeManager.Library:SetBackgroundImage(Value) end)
 
     --// Load default
