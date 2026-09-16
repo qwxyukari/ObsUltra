@@ -8417,43 +8417,14 @@ do
                 Parent = InnerOutline,
             })
 
-            BallShadow = New("Frame", {
-                AnchorPoint = Vector2.new(0.5, 0.5),
-                BackgroundColor3 = "DarkColor",
-                BackgroundTransparency = 0.55,
-                Position = UDim2.new(0, 0, 0.5, 1),
-                Size = UDim2.fromOffset(SLIDER_BALL_SIZE, SLIDER_BALL_SIZE),
-                ZIndex = Bar.ZIndex + 3,
-                Parent = Bar,
-            })
-            table.insert(
-                Library.PillCorners,
-                New("UICorner", {
-                    CornerRadius = Library.CornerRadius > 0 and UDim.new(1, 0) or UDim.new(0, 0),
-                    Parent = BallShadow,
-                })
-            )
 
-            Ball = New("Frame", {
-                AnchorPoint = Vector2.new(0.5, 0.5),
-                BackgroundColor3 = "FontColor",
-                Position = UDim2.fromScale(0, 0.5),
-                Size = UDim2.fromOffset(SLIDER_BALL_SIZE, SLIDER_BALL_SIZE),
-                ZIndex = Bar.ZIndex + 4,
-                Parent = Bar,
-            })
-            table.insert(
-                Library.PillCorners,
-                New("UICorner", {
-                    CornerRadius = Library.CornerRadius > 0 and UDim.new(1, 0) or UDim.new(0, 0),
-                    Parent = Ball,
-                })
-            )
             New("UIStroke", {
                 Color = "DarkColor",
                 Transparency = 0.75,
                 Parent = Ball,
             })
+			Ball.Visible = false
+BallShadow.Visible = false
         end
 
         --// Pill shaped bar and fill, squaring off with everything else at radius 0
