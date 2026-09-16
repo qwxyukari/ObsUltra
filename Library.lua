@@ -8325,10 +8325,10 @@ do
             Parent = Holder,
         })
 		New("UIPadding", {
-		PaddingBottom = UDim.new(0, 1),
-		PaddingTop = UDim.new(0, 1),
-		PaddingLeft = UDim.new(0, 1),
-		PaddingRight = UDim.new(0, 1),
+		PaddingBottom = UDim.new(0, 15),
+		PaddingTop = UDim.new(0, 15),
+		PaddingLeft = UDim.new(0, 15),
+		PaddingRight = UDim.new(0, 15),
 		Parent = Bar,
 		})
 
