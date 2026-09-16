@@ -8474,7 +8474,6 @@ local FillCorner = New("UICorner", {
     BottomRightRadius = UDim.new(0, 0),
     Parent = Fill,
 })
-)
 
         --// Grows the ball while hovered or dragged, per the design note. The fill
         --// ends at the ball's centre, so it has to travel with it.
