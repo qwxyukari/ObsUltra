@@ -8281,7 +8281,7 @@ do
 
         local Holder = New("Frame", {
             BackgroundTransparency = 1,
-            Size = UDim2.new(1, 0, 0, Info.Compact and 11 or 21),
+            Size = UDim2.new(1, 0, 0, Info.Compact and 11 or 26),
             Visible = Slider.Visible,
             Parent = Container,
         })
@@ -20352,6 +20352,6 @@ function Library:Unload()
 
     getgenv().Library = nil
 end
---
+
 getgenv().Library = Library
 return Library
