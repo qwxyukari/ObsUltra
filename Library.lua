@@ -8419,11 +8419,11 @@ do
 
             local FillWidthPx = Bar.AbsoluteSize.X * X
             local TextWidthPx = DisplayLabel.AbsoluteSize.X
-            local FitsOnLeft = FillWidthPx >= TextWidthPx + 14
+            local FitsOnLeft = FillWidthPx >= TextWidthPx + 6
 
             if FitsOnLeft then
                 DisplayLabel.AnchorPoint = Vector2.new(1, 0.5)
-                DisplayLabel.Position = UDim2.new(X, -6, 0.5, 0)
+                DisplayLabel.Position = UDim2.new(X, -2, 0.5, 0)
                 DisplayLabel.TextXAlignment = Enum.TextXAlignment.Right
 
                 if Info.AllowRightClickInput and InputTextBox then
@@ -8433,7 +8433,7 @@ do
                 end
             else
                 DisplayLabel.AnchorPoint = Vector2.new(0, 0.5)
-                DisplayLabel.Position = UDim2.new(X, 6, 0.5, 0)
+                DisplayLabel.Position = UDim2.new(X, 2, 0.5, 0)
                 DisplayLabel.TextXAlignment = Enum.TextXAlignment.Left
 
                 if Info.AllowRightClickInput and InputTextBox then
