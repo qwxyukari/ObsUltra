@@ -8477,32 +8477,9 @@ BallShadow.Visible = false
 
         --// Grows the ball while hovered or dragged, per the design note. The fill
         --// ends at the ball's centre, so it has to travel with it.
-        local function SetBallActive(Active: boolean)
-            if not Ball or BallActive == Active or Slider.Disabled then
-                return
-            end
-
-            BallActive = Active
-
-            local Diameter = Active and SLIDER_BALL_SIZE_ACTIVE or SLIDER_BALL_SIZE
-            local Size = UDim2.fromOffset(Diameter, Diameter)
-
-            local X = (Slider.Value - Slider.Min) / (Slider.Max - Slider.Min)
-            local Edge = UDim.new(X, (0.5 - X) * Diameter)
-            local Position = UDim2.new(Edge.Scale, Edge.Offset, 0.5, 0)
-
-            TweenService:Create(Ball, SLIDER_BALL_TWEEN, {
-                Size = Size,
-                Position = Position,
-            }):Play()
-            TweenService:Create(BallShadow, SLIDER_BALL_TWEEN, {
-                Size = Size,
-                Position = Position + UDim2.fromOffset(0, 1),
-            }):Play()
-            TweenService:Create(Fill, SLIDER_BALL_TWEEN, {
-                Size = UDim2.new(Edge.Scale, Edge.Offset, 1, 0),
-            }):Play()
-        end
+local function SetBallActive(Active: boolean)
+    --// Ball is hidden, so there is nothing to grow
+end
 
         function Slider:UpdateColors()
             if Library.Unloaded then
