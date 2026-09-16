@@ -8320,7 +8320,7 @@ do
             Position = UDim2.new(0.5, -6, 0.5, 0),
             Size = UDim2.new(0, 0, 1, 0),
             Text = "",
-            TextSize = 12,
+            TextSize = 14,
             TextXAlignment = Enum.TextXAlignment.Right,
             ZIndex = Bar.ZIndex + 2,
             Parent = Bar,
