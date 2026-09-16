@@ -8441,14 +8441,21 @@ InputTextBox = New("TextBox", {
 
                 local ScaleX = TargetX / BarWidth
 
-                TweenService:Create(DisplayLabel, Library.TweenInfo, {
-                    Position = UDim2.new(ScaleX, 0, 0.5, 0),
-                }):Play()
+                if Slider.Dragging then
+                    DisplayLabel.Position = UDim2.new(ScaleX, 0, 0.5, 0)
 
-                if Info.AllowRightClickInput and InputTextBox then
-                    InputTextBox.Position = UDim2.new(ScaleX, 0, 0.5, 0)
+                    if Info.AllowRightClickInput and InputTextBox then
+                        InputTextBox.Position = UDim2.new(ScaleX, 0, 0.5, 0)
+                    end
+                else
+                    TweenService:Create(DisplayLabel, Library.TweenInfo, {
+                        Position = UDim2.new(ScaleX, 0, 0.5, 0),
+                    }):Play()
+
+                    if Info.AllowRightClickInput and InputTextBox then
+                        InputTextBox.Position = UDim2.new(ScaleX, 0, 0.5, 0)
+                    end
                 end
-            end
 
             UpdateLabelPosition()
         end
@@ -8647,6 +8654,8 @@ InputTextBox = New("TextBox", {
                 Library.ActiveLoading.Sidebar.Container.ScrollingEnabled = false
             end
 
+            Slider.Dragging = true
+
             while IsDragInput(Input) and not Slider.Destroyed do
                 local Location = Mouse.X
                 local Scale = math.clamp((Location - Bar.AbsolutePosition.X) / Bar.AbsoluteSize.X, 0, 1)
@@ -8661,6 +8670,8 @@ InputTextBox = New("TextBox", {
 
                 RunService.RenderStepped:Wait()
             end
+
+            Slider.Dragging = false
 
             if Library.ActiveTab then
                 for _, Side in Library.ActiveTab.Sides do
