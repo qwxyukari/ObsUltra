@@ -8314,10 +8314,14 @@ do
         })
 
         local DisplayLabel = New("TextLabel", {
+            AnchorPoint = Vector2.new(1, 0.5),
+            AutomaticSize = Enum.AutomaticSize.X,
             BackgroundTransparency = 1,
-            Size = UDim2.fromScale(1, 1),
+            Position = UDim2.new(0.5, -6, 0.5, 0),
+            Size = UDim2.new(0, 0, 1, 0),
             Text = "",
             TextSize = 14,
+            TextXAlignment = Enum.TextXAlignment.Right,
             ZIndex = Bar.ZIndex + 2,
             Parent = Bar,
         })
@@ -8332,10 +8336,13 @@ do
         local InputTextBoxStroke
         if Info.AllowRightClickInput then
             InputTextBox = New("TextBox", {
+                AnchorPoint = Vector2.new(1, 0.5),
                 BackgroundTransparency = 1,
-                Size = UDim2.fromScale(1, 1),
+                Position = UDim2.new(0.5, -6, 0.5, 0),
+                Size = UDim2.new(0, 60, 1, 0),
                 Text = "",
                 TextSize = 14,
+                TextXAlignment = Enum.TextXAlignment.Right,
                 ZIndex = Bar.ZIndex + 3,
                 Visible = false,
                 ClearTextOnFocus = false,
@@ -8403,26 +8410,16 @@ do
             if CustomDisplayText then
                 DisplayLabel.Text = tostring(CustomDisplayText)
             else
-                if Info.Compact then
-                    DisplayLabel.Text =
-                        string.format("%s: %s%s%s", Slider.Text, Slider.Prefix, Slider.Value, Slider.Suffix)
-                elseif Info.HideMax then
-                    DisplayLabel.Text = string.format("%s%s%s", Slider.Prefix, Slider.Value, Slider.Suffix)
-                else
-                    DisplayLabel.Text = string.format(
-                        "%s%s%s/%s%s%s",
-                        Slider.Prefix,
-                        Slider.Value,
-                        Slider.Suffix,
-                        Slider.Prefix,
-                        Slider.Max,
-                        Slider.Suffix
-                    )
-                end
+                DisplayLabel.Text = string.format("%s%s%s", Slider.Prefix, Slider.Value, Slider.Suffix)
             end
 
             local X = (Slider.Value - Slider.Min) / (Slider.Max - Slider.Min)
             Fill.Size = UDim2.fromScale(X, 1)
+            DisplayLabel.Position = UDim2.new(X, -6, 0.5, 0)
+
+            if Info.AllowRightClickInput and InputTextBox then
+                InputTextBox.Position = UDim2.new(X, -6, 0.5, 0)
+            end
         end
 
         function Slider:OnChanged(Func)
