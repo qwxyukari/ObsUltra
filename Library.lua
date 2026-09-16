@@ -8553,19 +8553,8 @@ BallShadow.Visible = false
                 end
             end
 
-            local X = (Slider.Value - Slider.Min) / (Slider.Max - Slider.Min)
-
-            if not Ball then
-                Fill.Size = UDim2.fromScale(X, 1)
-                return
-            end
-
-            --// Nudged inward at the ends so the ball never hangs off the bar
+local X = (Slider.Value - Slider.Min) / (Slider.Max - Slider.Min)
 Fill.Size = UDim2.fromScale(X, 1)
-
-            local Position = UDim2.new(Edge.Scale, Edge.Offset, 0.5, 0)
-            Ball.Position = Position
-            BallShadow.Position = Position + UDim2.fromOffset(0, 1)
         end
 
         function Slider:OnChanged(Func)
