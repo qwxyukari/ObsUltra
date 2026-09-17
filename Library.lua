@@ -7012,7 +7012,7 @@ do
 
             Data.Text = Params.Text or ""
             Data.DoesWrap = Params.DoesWrap or false
-            Data.Size = Params.Size or 14
+            Data.Size = Params.Size or 11
             Data.Visible = Params.Visible or true
             Data.Idx = typeof(Second) == "table" and First or nil
         else
