@@ -7609,7 +7609,7 @@ do
         --// grey-gradient body that fades to the accent when toggled on
         local Checkbox = New("Frame", {
             AnchorPoint = Vector2.new(0, 0.5),
-            BackgroundColor3 = rgb(12, 12, 12),
+            BackgroundColor3 = Color3.fromRGB(12, 12, 12),
             BorderSizePixel = 0,
             Position = UDim2.fromScale(0, 0.5),
             Size = UDim2.fromOffset(8, 8),
@@ -7656,17 +7656,11 @@ do
         --// UIGradient.Color holds a ColorSequence, so it must be a function;
         --// state-dependent bits live in Display().
         Library:AddToRegistry(Checkbox, {
-            BackgroundColor3 = function()
-                return Library.Scheme.OutlineColor
-            end,
+            BackgroundColor3 = Color3.fromRGB(12, 12, 12),
         })
 
         Library:AddToRegistry(CheckboxInline, {
-            BackgroundColor3 = function()
-                return Toggle.Disabled
-                    and Library:GetDarkerColor(Library.Scheme.MainColor)
-                    or Color3.fromRGB(227, 227, 227)
-            end,
+            BackgroundColor3 = Color3.fromRGB(227, 227, 227),
         })
 
         Library:AddToRegistry(CheckboxMain, {
