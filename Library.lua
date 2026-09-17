@@ -14130,15 +14130,6 @@ function Library:CreateWindow(WindowInfo)
             end
         end
 
-        --// Runtime toggle for the rainbow bar
-        function Window:SetRainbowBar(Enabled: boolean)
-            if not RainbowBar then
-                return
-            end
-
-            RainbowBar.Visible = Enabled == true
-        end
-
         DividerLine = New("Frame", {
             BackgroundColor3 = "OutlineColor",
             Position = UDim2.fromOffset(InitialLeftWidth, 0),
@@ -15173,6 +15164,14 @@ function Library:CreateWindow(WindowInfo)
     --// Window Table \\--
     local Window = {}
     local Fading = false
+
+    function Window:SetRainbowBar(Enabled: boolean)
+        if not RainbowBar then
+            return
+        end
+
+        RainbowBar.Visible = Enabled == true
+    end
 
     local function SetUICorner(UICorner, Corner, HalfValue)
         local Current = UICorner[Corner]
