@@ -7018,7 +7018,7 @@ do
         else
             Data.Text = First or ""
             Data.DoesWrap = Second or false
-            Data.Size = 14
+            Data.Size = 11
             Data.Visible = true
             Data.Idx = select(3, ...) or nil
         end
