@@ -617,7 +617,6 @@ local Templates = {
             Speed = 0.15,
             Colors = nil,
         },
-    },
     Groupbox = {
         Side = 1,
         Name = "Groupbox",
