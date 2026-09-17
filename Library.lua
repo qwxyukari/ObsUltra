@@ -7656,6 +7656,39 @@ do
             Toggle:Display()
         end
 
+        function Toggle:Display()
+            if Library.Unloaded then
+                return
+            end
+
+            if Toggle.Disabled then
+                Label.TextTransparency = 0.8
+                Checkbox.BackgroundColor3 = Library.Scheme.OutlineColor
+                CheckboxInline.BackgroundColor3 = Library:GetDarkerColor(Library.Scheme.MainColor)
+
+                TweenService:Create(CheckboxMain, Library.TweenInfo, {
+                    BackgroundTransparency = 1,
+                }):Play()
+
+                return
+            end
+
+            TweenService:Create(Label, Library.TweenInfo, {
+                TextTransparency = Toggle.Value and 0 or 0.4,
+            }):Play()
+
+            --// Re-tint the accent overlay whenever the theme changes
+            CheckboxMainGradient.Color = ColorSequence.new(
+                Library.Scheme.AccentColor,
+                Library:GetDarkerColor(Library.Scheme.AccentColor)
+            )
+
+            --// Off: overlay is hidden so the grey inner shows. On: overlay covers it.
+            TweenService:Create(CheckboxMain, Library.TweenInfo, {
+                BackgroundTransparency = Toggle.Value and 0 or 1,
+            }):Play()
+        end
+
         function Toggle:OnChanged(Func)
             Toggle.Changed = Func
         end
