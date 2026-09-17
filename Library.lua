@@ -14067,24 +14067,16 @@ function Library:CreateWindow(WindowInfo)
         })
 
         --// Rainbow bar (sk33t style, static) \\--
-        local RainbowBarHolder = New("Frame", {
-            Name = "RainbowBarHolder",
-            BackgroundColor3 = Color3.new(1, 1, 1),
-            BorderSizePixel = 0,
-            Position = UDim2.fromOffset(0, 1),
-            Size = UDim2.new(1, -2, 0, 4),
-            ZIndex = 5,
-            Parent = MainFrame,
-        })
-
-        New("ImageLabel", {
+        local RainbowBar = New("ImageLabel", {
             Name = "RainbowBar",
             BackgroundTransparency = 1,
             BorderSizePixel = 0,
             Image = "rbxassetid://8508019876",
             Position = UDim2.fromOffset(0, 1),
-            Size = UDim2.new(1, -2, 1, -2),
-            Parent = RainbowBarHolder,
+            Size = UDim2.new(1, -2, 0, 2),
+            ZIndex = 5,
+            Visible = (WindowInfo.RainbowBar and WindowInfo.RainbowBar.Enabled ~= false),
+            Parent = MainFrame,
         })
 
         DividerLine = New("Frame", {
