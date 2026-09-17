@@ -6462,7 +6462,7 @@ local PLAYER_THUMBNAIL_TYPES = {
     full = "AvatarThumbnail",
 }
 
-local PLAYER_CARD_LINE_HEIGHT = 15
+local PLAYER_CARD_LINE_HEIGHT = 13
 local PLAYER_CARD_LINE_PADDING = 2
 local PLAYER_CARD_DIVIDER_HEIGHT = 7
 
@@ -6686,7 +6686,7 @@ local function CreatePlayerCard(Info, Parent: Instance, IsCompact: boolean, Inse
                     LayoutOrder = Index,
                     Size = UDim2.new(1, 0, 0, PLAYER_CARD_LINE_HEIGHT),
                     Text = Text,
-                    TextSize = 13,
+                    TextSize = 11,
                     TextTransparency = 0.25,
                     TextTruncate = Enum.TextTruncate.AtEnd,
                     TextXAlignment = Enum.TextXAlignment.Left,
