@@ -7581,7 +7581,7 @@ do
         local Button = New("TextButton", {
             Active = not Toggle.Disabled,
             BackgroundTransparency = 1,
-            Size = UDim2.new(1, 0, 0, 18),
+            Size = UDim2.new(1, 0, 0, 16),
             Text = "",
             Visible = Toggle.Visible,
             Parent = Container,
@@ -7589,10 +7589,10 @@ do
 
         local Label = New("TextLabel", {
             BackgroundTransparency = 1,
-            Position = UDim2.fromOffset(26, 0),
-            Size = UDim2.new(1, -26, 1, 0),
+            Position = UDim2.fromOffset(20, 0),
+            Size = UDim2.new(1, -20, 1, 0),
             Text = Toggle.Text,
-            TextSize = 11, -- (TextSize = 14 default)
+            TextSize = 11,
             TextTransparency = 0.4,
             TextXAlignment = Enum.TextXAlignment.Left,
             Parent = Button,
@@ -7605,66 +7605,55 @@ do
             Parent = Label,
         })
 
+        --// gamesense-style checkbox: 8x8 square with a dark outline and a
+        --// grey-gradient body that fades to the accent when toggled on
         local Checkbox = New("Frame", {
-            BackgroundColor3 = "MainColor",
-            Size = UDim2.fromScale(1, 1),
-            SizeConstraint = Enum.SizeConstraint.RelativeYY,
+            AnchorPoint = Vector2.new(0, 0.5),
+            BackgroundColor3 = "OutlineColor",
+            BorderSizePixel = 0,
+            Position = UDim2.fromScale(0, 0.5),
+            Size = UDim2.fromOffset(8, 8),
             Parent = Button,
         })
-        table.insert(
-            Library.Corners,
-            New("UICorner", {
-                CornerRadius = UDim.new(0, Library.CornerRadius / 2),
-                Parent = Checkbox,
-            })
-        )
 
-        local CheckboxStroke = New("UIStroke", {
-            Color = "OutlineColor",
+        local CheckboxInline = New("Frame", {
+            BackgroundColor3 = Color3.fromRGB(227, 227, 227),
+            BorderSizePixel = 0,
+            Position = UDim2.fromOffset(1, 1),
+            Size = UDim2.new(1, -2, 1, -2),
             Parent = Checkbox,
         })
 
-        local CheckImage = New("ImageLabel", {
-            ImageColor3 = "FontColor",
-            ImageTransparency = 1,
-            Position = UDim2.fromOffset(2, 2),
-            Size = UDim2.new(1, -4, 1, -4),
+        local CheckboxInlineGradient = New("UIGradient", {
+            Rotation = 90,
+            Color = ColorSequence.new(
+                Color3.fromRGB(84, 84, 84),
+                Color3.fromRGB(74, 74, 74)
+            ),
+            Parent = CheckboxInline,
+        })
+
+        --// Accent overlay, transparent when off
+        local CheckboxMain = New("Frame", {
+            BackgroundColor3 = "AccentColor",
+            BackgroundTransparency = 1,
+            BorderSizePixel = 0,
+            Position = UDim2.fromOffset(1, 1),
+            Size = UDim2.new(1, -2, 1, -2),
             Parent = Checkbox,
         })
-        if CheckIcon then
-            Library:ApplyLucideIcon(CheckImage, CheckIcon)
-        end
+
+        local CheckboxMainGradient = New("UIGradient", {
+            Rotation = 90,
+            Color = ColorSequence.new(
+                Library.Scheme.AccentColor,
+                Library:GetDarkerColor(Library.Scheme.AccentColor)
+            ),
+            Parent = CheckboxMain,
+        })
 
         function Toggle:UpdateColors()
             Toggle:Display()
-        end
-
-        function Toggle:Display()
-            if Library.Unloaded then
-                return
-            end
-
-            CheckboxStroke.Transparency = Toggle.Disabled and 0.5 or 0
-
-            if Toggle.Disabled then
-                Label.TextTransparency = 0.8
-                CheckImage.ImageTransparency = Toggle.Value and 0.8 or 1
-
-                Checkbox.BackgroundColor3 = Library.Scheme.BackgroundColor
-                Library.Registry[Checkbox].BackgroundColor3 = "BackgroundColor"
-
-                return
-            end
-
-            TweenService:Create(Label, Library.TweenInfo, {
-                TextTransparency = Toggle.Value and 0 or 0.4,
-            }):Play()
-            TweenService:Create(CheckImage, Library.TweenInfo, {
-                ImageTransparency = Toggle.Value and 0 or 1,
-            }):Play()
-
-            Checkbox.BackgroundColor3 = Library.Scheme.MainColor
-            Library.Registry[Checkbox].BackgroundColor3 = "MainColor"
         end
 
         function Toggle:OnChanged(Func)
