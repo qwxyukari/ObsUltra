@@ -7609,7 +7609,7 @@ do
         --// grey-gradient body that fades to the accent when toggled on
         local Checkbox = New("Frame", {
             AnchorPoint = Vector2.new(0, 0.5),
-            BackgroundColor3 = "OutlineColor",
+            BackgroundColor3 = rgb(12, 12, 12)
             BorderSizePixel = 0,
             Position = UDim2.fromScale(0, 0.5),
             Size = UDim2.fromOffset(8, 8),
@@ -7652,6 +7652,36 @@ do
             Parent = CheckboxMain,
         })
 
+        --// Register scheme-driven colors so theme switches refresh them.
+        --// UIGradient.Color holds a ColorSequence, so it must be a function;
+        --// state-dependent bits live in Display().
+        Library:AddToRegistry(Checkbox, {
+            BackgroundColor3 = function()
+                return Library.Scheme.OutlineColor
+            end,
+        })
+
+        Library:AddToRegistry(CheckboxInline, {
+            BackgroundColor3 = function()
+                return Toggle.Disabled
+                    and Library:GetDarkerColor(Library.Scheme.MainColor)
+                    or Color3.fromRGB(227, 227, 227)
+            end,
+        })
+
+        Library:AddToRegistry(CheckboxMain, {
+            BackgroundColor3 = "AccentColor",
+        })
+
+        Library:AddToRegistry(CheckboxMainGradient, {
+            Color = function()
+                return ColorSequence.new(
+                    Library.Scheme.AccentColor,
+                    Library:GetDarkerColor(Library.Scheme.AccentColor)
+                )
+            end,
+        })
+
         function Toggle:UpdateColors()
             Toggle:Display()
         end
@@ -7661,31 +7691,39 @@ do
                 return
             end
 
-            if Toggle.Disabled then
-                Label.TextTransparency = 0.8
-                Checkbox.BackgroundColor3 = Library.Scheme.OutlineColor
-                CheckboxInline.BackgroundColor3 = Library:GetDarkerColor(Library.Scheme.MainColor)
-
-                TweenService:Create(CheckboxMain, Library.TweenInfo, {
-                    BackgroundTransparency = 1,
-                }):Play()
-
-                return
+            --// Refresh registry entries for the current state, so the next
+            --// UpdateColorsUsingRegistry call (theme change) applies correctly
+            Library.Registry[Checkbox].BackgroundColor3 = function()
+                return Library.Scheme.OutlineColor
+            end
+            Library.Registry[CheckboxInline].BackgroundColor3 = function()
+                return Toggle.Disabled
+                    and Library:GetDarkerColor(Library.Scheme.MainColor)
+                    or Color3.fromRGB(227, 227, 227)
+            end
+            Library.Registry[CheckboxMainGradient].Color = function()
+                return ColorSequence.new(
+                    Library.Scheme.AccentColor,
+                    Library:GetDarkerColor(Library.Scheme.AccentColor)
+                )
             end
 
-            TweenService:Create(Label, Library.TweenInfo, {
-                TextTransparency = Toggle.Value and 0 or 0.4,
-            }):Play()
-
-            --// Re-tint the accent overlay whenever the theme changes
+            --// Apply immediately for this frame
+            Checkbox.BackgroundColor3 = Library.Scheme.OutlineColor
+            CheckboxInline.BackgroundColor3 = Toggle.Disabled
+                and Library:GetDarkerColor(Library.Scheme.MainColor)
+                or Color3.fromRGB(227, 227, 227)
             CheckboxMainGradient.Color = ColorSequence.new(
                 Library.Scheme.AccentColor,
                 Library:GetDarkerColor(Library.Scheme.AccentColor)
             )
 
-            --// Off: overlay is hidden so the grey inner shows. On: overlay covers it.
+            TweenService:Create(Label, Library.TweenInfo, {
+                TextTransparency = Toggle.Disabled and 0.8 or (Toggle.Value and 0 or 0.4),
+            }):Play()
+
             TweenService:Create(CheckboxMain, Library.TweenInfo, {
-                BackgroundTransparency = Toggle.Value and 0 or 1,
+                BackgroundTransparency = Toggle.Disabled and 1 or (Toggle.Value and 0 or 1),
             }):Play()
         end
 
