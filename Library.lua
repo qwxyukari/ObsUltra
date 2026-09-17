@@ -14172,7 +14172,7 @@ function Library:CreateWindow(WindowInfo)
             BackgroundTransparency = 1,
             Size = UDim2.new(0, X, 1, 0),
             Text = WindowInfo.Title,
-            TextSize = 16, -- (TextSize = 20 default)
+            TextSize = 18, -- (TextSize = 20 default)
             Parent = TitleHolder,
         })
 
@@ -18752,7 +18752,7 @@ function Library:CreateWindow(WindowInfo)
             Size = UDim2.new(1, 0, 0, 18),
             AutomaticSize = Enum.AutomaticSize.Y,
             Text = Info.Title,
-            TextSize = 18,
+            TextSize = 11,
             TextColor3 = Info.TitleColor or "FontColor",
             TextXAlignment = Enum.TextXAlignment.Left,
             LayoutOrder = 2,
@@ -19615,7 +19615,7 @@ function Library:CreateLoading(LoadingInfo)
         BackgroundTransparency = 1,
         Size = UDim2.new(0, TitleX, 1, 0),
         Text = LoadingInfo.Title,
-        TextSize = 16, -- (TextSize = 20 default)
+        TextSize = 18, -- (TextSize = 20 default)
         Parent = TitleHolder,
     })
 
