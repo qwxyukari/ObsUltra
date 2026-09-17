@@ -434,7 +434,7 @@ local Library = {
         AccentColor = Color3.fromRGB(125, 85, 255),
         OutlineColor = Color3.fromRGB(40, 40, 40),
         FontColor = Color3.new(1, 1, 1),
-        Font = Font.fromEnum(Enum.Font.Code),
+        Font = CustomFontManager.RegisterFont("Verdana"),
 
         RedColor = Color3.fromRGB(255, 50, 50),
         BlueColor = Color3.fromRGB(80, 155, 255),
@@ -569,7 +569,7 @@ local Templates = {
         --// so the user opts in themselves via Window:SetGlow(true) (or this flag).
         Glow = false,
 
-        Font = Enum.Font.Code,
+        Font = CustomFontManager.RegisterFont("Verdana"),
         ToggleKeybind = Enum.KeyCode.RightControl,
 
         ShowMobileButtons = true,
