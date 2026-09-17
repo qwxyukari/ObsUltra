@@ -7609,7 +7609,7 @@ do
         --// grey-gradient body that fades to the accent when toggled on
         local Checkbox = New("Frame", {
             AnchorPoint = Vector2.new(0, 0.5),
-            BackgroundColor3 = rgb(12, 12, 12)
+            BackgroundColor3 = rgb(12, 12, 12),
             BorderSizePixel = 0,
             Position = UDim2.fromScale(0, 0.5),
             Size = UDim2.fromOffset(8, 8),
