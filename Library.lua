@@ -14172,7 +14172,7 @@ function Library:CreateWindow(WindowInfo)
             BackgroundTransparency = 1,
             Size = UDim2.new(0, X, 1, 0),
             Text = WindowInfo.Title,
-            TextSize = 20,
+            TextSize = 16, -- (TextSize = 20 default)
             Parent = TitleHolder,
         })
 
@@ -19615,7 +19615,7 @@ function Library:CreateLoading(LoadingInfo)
         BackgroundTransparency = 1,
         Size = UDim2.new(0, TitleX, 1, 0),
         Text = LoadingInfo.Title,
-        TextSize = 20,
+        TextSize = 16, -- (TextSize = 20 default)
         Parent = TitleHolder,
     })
 
