@@ -612,10 +612,6 @@ local Templates = {
         --// Rainbow bar at the top of the window
         RainbowBar = {
             Enabled = true,
-            Thickness = 3,
-            Animated = true,
-            Speed = 0.15,
-            Colors = nil,
         },
     },
     Groupbox = {
@@ -14070,65 +14066,26 @@ function Library:CreateWindow(WindowInfo)
             Size = UDim2.new(1, 0, 0, 1),
         })
 
-        --// Rainbow bar \\--
-        local RainbowBar
-        local RainbowGradient
-        local RainbowOffset = 0
+        --// Rainbow bar (sk33t style, static) \\--
+        local RainbowBarHolder = New("Frame", {
+            Name = "RainbowBarHolder",
+            BackgroundColor3 = Color3.new(1, 1, 1),
+            BorderSizePixel = 0,
+            Position = UDim2.fromOffset(0, 1),
+            Size = UDim2.new(1, -2, 0, 4),
+            ZIndex = 5,
+            Parent = MainFrame,
+        })
 
-        local DEFAULT_RAINBOW = {
-            { 0.000, Color3.fromRGB(255, 76, 76) },
-            { 0.166, Color3.fromRGB(255, 176, 32) },
-            { 0.333, Color3.fromRGB(255, 240, 80) },
-            { 0.500, Color3.fromRGB(96, 216, 118) },
-            { 0.666, Color3.fromRGB(80, 155, 255) },
-            { 0.833, Color3.fromRGB(180, 100, 255) },
-            { 1.000, Color3.fromRGB(255, 76, 180) },
-        }
-
-        if WindowInfo.RainbowBar and WindowInfo.RainbowBar.Enabled ~= false then
-            local BarConfig = WindowInfo.RainbowBar
-
-            RainbowBar = New("Frame", {
-                Name = "RainbowBar",
-                BackgroundColor3 = Color3.new(1, 1, 1),
-                BorderSizePixel = 0,
-                Position = UDim2.fromOffset(0, 0),
-                Size = UDim2.new(1, 0, 0, BarConfig.Thickness or 3),
-                ZIndex = 5,
-                Parent = MainFrame,
-            })
-
-            local BarCorner = New("UICorner", {
-                TopLeftRadius = UDim.new(0, WindowInfo.CornerRadius),
-                TopRightRadius = UDim.new(0, WindowInfo.CornerRadius),
-                BottomLeftRadius = UDim.new(0, 0),
-                BottomRightRadius = UDim.new(0, 0),
-                Parent = RainbowBar,
-            })
-            table.insert(Library.SpecificCorners, BarCorner)
-
-            local Keypoints = BarConfig.Colors or DEFAULT_RAINBOW
-            local SequenceTable = {}
-            for _, Point in Keypoints do
-                table.insert(SequenceTable, ColorSequenceKeypoint.new(Point[1], Point[2]))
-            end
-
-            RainbowGradient = New("UIGradient", {
-                Color = ColorSequence.new(SequenceTable),
-                Parent = RainbowBar,
-            })
-
-            if BarConfig.Animated then
-                Library:GiveSignal(RunService.RenderStepped:Connect(function(DeltaTime)
-                    if not RainbowBar or not RainbowBar.Parent then
-                        return
-                    end
-
-                    RainbowOffset = (RainbowOffset + DeltaTime / (BarConfig.Speed or 0.15)) % 1
-                    RainbowGradient.Offset = Vector2.new(RainbowOffset, 0)
-                end))
-            end
-        end
+        New("ImageLabel", {
+            Name = "RainbowBar",
+            BackgroundTransparency = 1,
+            BorderSizePixel = 0,
+            Image = "rbxassetid://8508019876",
+            Position = UDim2.fromOffset(0, 1),
+            Size = UDim2.new(1, -2, 1, -2),
+            Parent = RainbowBarHolder,
+        })
 
         DividerLine = New("Frame", {
             BackgroundColor3 = "OutlineColor",
@@ -15164,14 +15121,6 @@ function Library:CreateWindow(WindowInfo)
     --// Window Table \\--
     local Window = {}
     local Fading = false
-
-    function Window:SetRainbowBar(Enabled: boolean)
-        if not RainbowBar then
-            return
-        end
-
-        RainbowBar.Visible = Enabled == true
-    end
 
     local function SetUICorner(UICorner, Corner, HalfValue)
         local Current = UICorner[Corner]
