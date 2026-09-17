@@ -7685,33 +7685,6 @@ do
                 return
             end
 
-            --// Refresh registry entries for the current state, so the next
-            --// UpdateColorsUsingRegistry call (theme change) applies correctly
-            Library.Registry[Checkbox].BackgroundColor3 = function()
-                return Library.Scheme.OutlineColor
-            end
-            Library.Registry[CheckboxInline].BackgroundColor3 = function()
-                return Toggle.Disabled
-                    and Library:GetDarkerColor(Library.Scheme.MainColor)
-                    or Color3.fromRGB(227, 227, 227)
-            end
-            Library.Registry[CheckboxMainGradient].Color = function()
-                return ColorSequence.new(
-                    Library.Scheme.AccentColor,
-                    Library:GetDarkerColor(Library.Scheme.AccentColor)
-                )
-            end
-
-            --// Apply immediately for this frame
-            Checkbox.BackgroundColor3 = Library.Scheme.OutlineColor
-            CheckboxInline.BackgroundColor3 = Toggle.Disabled
-                and Library:GetDarkerColor(Library.Scheme.MainColor)
-                or Color3.fromRGB(227, 227, 227)
-            CheckboxMainGradient.Color = ColorSequence.new(
-                Library.Scheme.AccentColor,
-                Library:GetDarkerColor(Library.Scheme.AccentColor)
-            )
-
             TweenService:Create(Label, Library.TweenInfo, {
                 TextTransparency = Toggle.Disabled and 0.8 or (Toggle.Value and 0 or 0.4),
             }):Play()
