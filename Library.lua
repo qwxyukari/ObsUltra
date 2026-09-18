@@ -14166,6 +14166,14 @@ function Library:CreateWindow(WindowInfo)
             Visible = (WindowInfo.RainbowBar and WindowInfo.RainbowBar.Enabled ~= false),
             Parent = ContentFrame,
         })
+        local RainbowBarCorner = New("UICorner", {
+              TopLeftRadius = UDim.new(0, math.max(0, WindowInfo.CornerRadius - 3)),
+              TopRightRadius = UDim.new(0, math.max(0, WindowInfo.CornerRadius - 3)),
+              BottomLeftRadius = UDim.new(0, 0),
+              BottomRightRadius = UDim.new(0, 0),
+              Parent = RainbowBar,
+         })
+        table.insert(Library.SpecificCorners, RainbowBarCorner)
 
         DividerLine = New("Frame", {
             BackgroundColor3 = "OutlineColor",
