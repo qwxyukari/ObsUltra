@@ -14088,58 +14088,54 @@ function Library:CreateWindow(WindowInfo)
             })
         )
 		
--- 1. Удаляем все UIStroke/UICorner, если они создаются автоматически
-for _, Child in MainFrame:GetChildren() do
-    if Child:IsA("UIStroke") or Child:IsA("UICorner") then
-        Child:Destroy()
-    end
-end
-
--- 2. Внешняя черная обводка (1px) — теперь она держит ВСЁ меню
-local OuterBorder = New("Frame", {
-    Name = "Gamesense_Outer",
-    Size = MainFrame.Size, -- Берем размер MainFrame
-    Position = MainFrame.Position, -- Берем позицию MainFrame
-    BackgroundColor3 = Color3.fromRGB(12, 12, 12),
+-- 1. Создаем ВНЕШНИЙ КОНТЕЙНЕР (он становится главным окном вместо MainFrame)
+local WindowWrapper = New("Frame", {
+    Name = "Gamesense_WindowWrapper",
+    Size = WindowInfo.Size or UDim2.fromOffset(600, 450), -- Размер вашего UI
+    Position = WindowInfo.Position or UDim2.fromScale(0.5, 0.5),
+    AnchorPoint = Vector2.new(0.5, 0.5),
+    BackgroundColor3 = Color3.fromRGB(12, 12, 12), -- 1px Внешняя черная обводка
     BorderSizePixel = 0,
-    Parent = MainFrame.Parent -- Вешаем на ScreenGui
+    Parent = Library.ScreenGui or ScreenGui -- Укажите ваш ScreenGui
 })
 
--- 3. Внутренняя светлая рамка (1px)
-local InnerBorder = New("Frame", {
-    Name = "Gamesense_Inner",
+-- 2. Вторая серая линия (1px)
+local InnerBorder1 = New("Frame", {
+    Name = "InnerBorder1",
     Size = UDim2.new(1, -2, 1, -2),
     Position = UDim2.new(0, 1, 0, 1),
     BackgroundColor3 = Color3.fromRGB(60, 60, 60),
     BorderSizePixel = 0,
-    Parent = OuterBorder
+    Parent = WindowWrapper
 })
 
--- 4. Тёмная прослойка (4px)
-local MidBorder = New("Frame", {
-    Name = "Gamesense_Mid",
+-- 3. Темная прослойка (3px)
+local InnerBorder2 = New("Frame", {
+    Name = "InnerBorder2",
     Size = UDim2.new(1, -2, 1, -2),
     Position = UDim2.new(0, 1, 0, 1),
     BackgroundColor3 = Color3.fromRGB(40, 40, 40),
     BorderSizePixel = 0,
-    Parent = InnerBorder
+    Parent = InnerBorder1
 })
 
--- 5. Третья внутренняя серая линия (1px)
-local InnerLine = New("Frame", {
-    Name = "Gamesense_Line",
+-- 4. Внутренняя серая линия (1px)
+local InnerBorder3 = New("Frame", {
+    Name = "InnerBorder3",
     Size = UDim2.new(1, -6, 1, -6),
     Position = UDim2.new(0, 3, 0, 3),
     BackgroundColor3 = Color3.fromRGB(60, 60, 60),
     BorderSizePixel = 0,
-    Parent = MidBorder
+    Parent = InnerBorder2
 })
 
--- 6. Перепривязываем MainFrame ВНУТРЬ нашей структуры:
-MainFrame.Parent = InnerLine
+-- 5. Подстраиваем ваш MainFrame строго внутрь рамки
+MainFrame.Parent = InnerBorder3
 MainFrame.Position = UDim2.new(0, 1, 0, 1)
 MainFrame.Size = UDim2.new(1, -2, 1, -2)
+MainFrame.BackgroundColor3 = Color3.fromRGB(23, 23, 23)
 MainFrame.BorderSizePixel = 0
+MainFrame.ClipsDescendants = true -- Зажимает внутренние элементы, чтобы не вылезали
 
         --// Rainbow bar (sk33t style, static) \\--
         local RainbowBar = New("ImageLabel", {
