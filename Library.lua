@@ -14128,7 +14128,7 @@ function Library:CreateWindow(WindowInfo)
 
         --// Content surface — everything from now on goes in here, so it sits
         --// inside all 4 rings. Same color the original MainFrame used to be.
-        local ContentFrame = New("Frame", {
+        local ContentFrame = New("CanvasGroup", {
             BackgroundColor3 = function()
                 return Library:GetBetterColor(Library.Scheme.BackgroundColor, -1)
             end,
