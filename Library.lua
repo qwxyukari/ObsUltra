@@ -14966,7 +14966,7 @@ function Library:CreateWindow(WindowInfo)
             Parent = FooterHolder,
         })
         New("UIPadding", {
-            PaddingTop = UDim.new(0, 3),
+            PaddingTop = UDim.new(0, 4),
             Parent = FooterHolder,
         })
         local function AddFooterSegment(Info)
