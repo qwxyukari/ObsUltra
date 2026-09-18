@@ -14087,93 +14087,46 @@ function Library:CreateWindow(WindowInfo)
                 Parent = MainFrame,
             })
         )
-        Library:AddOutline(MainFrame)
-        --// gamesense-style window edge: 1px dark outer ring + 1px light inner line
-        for _, Child in MainFrame:GetChildren() do
-            if Child:IsA("UIStroke") then
-                Child:Destroy()
-            end
-        end
 
-        --// Ring 1 — outer dark hairline
-        local BorderRing1 = New("Frame", {
-            BackgroundTransparency = 1,
-            Size = UDim2.fromScale(1, 1),
-            ZIndex = 2,
-            Parent = MainFrame,
-        })
-        table.insert(Library.Corners, New("UICorner", {
-            CornerRadius = UDim.new(0, WindowInfo.CornerRadius),
-            Parent = BorderRing1,
-        }))
-        New("UIStroke", {
-            Color = Color3.fromRGB(12, 12, 12),
-            Thickness = 1,
-            ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-            Parent = BorderRing1,
-        })
+local OuterBorder = New("Frame", {
+    Name = "OuterBorder",
+    Size = UDim2.new(1, 0, 1, 0),
+    Position = UDim2.new(0, 0, 0, 0),
+    BackgroundColor3 = Color3.fromRGB(12, 12, 12),
+    BorderSizePixel = 0,
+    ZIndex = 1,
+    Parent = MainFrame
+})
 
-        --// Ring 2 — light grey line
-        local BorderRing2 = New("Frame", {
-            BackgroundTransparency = 1,
-            Position = UDim2.fromOffset(1, 1),
-            Size = UDim2.new(1, -2, 1, -2),
-            ZIndex = 2,
-            Parent = MainFrame,
-        })
-        table.insert(Library.Corners, New("UICorner", {
-            CornerRadius = UDim.new(0, math.max(0, WindowInfo.CornerRadius - 1)),
-            Parent = BorderRing2,
-        }))
-        New("UIStroke", {
-            Color = Color3.fromRGB(60, 60, 60),
-            Thickness = 1,
-            ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-            Parent = BorderRing2,
-        })
+local InnerBorder = New("Frame", {
+    Name = "InnerBorder",
+    Size = UDim2.new(1, -2, 1, -2),
+    Position = UDim2.new(0, 1, 0, 1),
+    BackgroundColor3 = Color3.fromRGB(60, 60, 60),
+    BorderSizePixel = 0,
+    ZIndex = 2,
+    Parent = OuterBorder
+})
 
-        --// Ring 3 — mid grey band (thicker: 3px)
-        local BorderRing3 = New("Frame", {
-            BackgroundTransparency = 1,
-            Position = UDim2.fromOffset(2, 2),
-            Size = UDim2.new(1, -4, 1, -4),
-            ZIndex = 2,
-            Parent = MainFrame,
-        })
-        table.insert(Library.Corners, New("UICorner", {
-            CornerRadius = UDim.new(0, math.max(0, WindowInfo.CornerRadius - 2)),
-            Parent = BorderRing3,
-        }))
-        New("UIStroke", {
-            Color = Color3.fromRGB(40, 40, 40),
-            Thickness = 3,
-            ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-            Parent = BorderRing3,
-        })
+local DarkBorder = New("Frame", {
+    Name = "DarkBorder",
+    Size = UDim2.new(1, -2, 1, -2),
+    Position = UDim2.new(0, 1, 0, 1),
+    BackgroundColor3 = Color3.fromRGB(40, 40, 40),
+    BorderSizePixel = 0,
+    ZIndex = 3,
+    Parent = InnerBorder
+})
 
-        --// Ring 4 — second light grey line
-        local BorderRing4 = New("Frame", {
-            BackgroundTransparency = 1,
-            Position = UDim2.fromOffset(5, 5),
-            Size = UDim2.new(1, -10, 1, -10),
-            ZIndex = 2,
-            Parent = MainFrame,
-        })
-        table.insert(Library.Corners, New("UICorner", {
-            CornerRadius = UDim.new(0, math.max(0, WindowInfo.CornerRadius - 3)),
-            Parent = BorderRing4,
-        }))
-        New("UIStroke", {
-            Color = Color3.fromRGB(60, 60, 60),
-            Thickness = 1,
-            ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-            Parent = BorderRing4,
-        })
-
-        Library:MakeLine(MainFrame, {
-            Position = UDim2.fromOffset(0, 48),
-            Size = UDim2.new(1, 0, 0, 1),
-        })
+local MainBody = New("Frame", {
+    Name = "MainBody",
+    Size = UDim2.new(1, -2, 1, -2),
+    Position = UDim2.new(0, 1, 0, 1),
+    BackgroundColor3 = Color3.fromRGB(23, 23, 23),
+    BorderSizePixel = 0,
+    ZIndex = 4,
+    Parent = DarkBorder
+})
 
         --// Rainbow bar (sk33t style, static) \\--
         local RainbowBar = New("ImageLabel", {
