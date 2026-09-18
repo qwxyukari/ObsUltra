@@ -14095,18 +14095,19 @@ function Library:CreateWindow(WindowInfo)
             end
         end
 
+        --// Outer dark ring
         New("UIStroke", {
-            Color = Color3.fromRGB(10, 10, 15),
+            Color = Color3.fromRGB(12, 12, 12),
             Thickness = 1,
             ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
             Parent = MainFrame,
         })
 
-        local EdgeHighlight = New("Frame", {
+        --// Inner light line (1px in from the outer ring)
+        local EdgeInner = New("Frame", {
             BackgroundTransparency = 1,
             Position = UDim2.fromOffset(1, 1),
             Size = UDim2.new(1, -2, 1, -2),
-            --// Must sit above Tabs / Container (ZIndex 1) or they cover it
             ZIndex = 2,
             Parent = MainFrame,
         })
@@ -14114,14 +14115,37 @@ function Library:CreateWindow(WindowInfo)
             Library.Corners,
             New("UICorner", {
                 CornerRadius = UDim.new(0, math.max(0, WindowInfo.CornerRadius - 1)),
-                Parent = EdgeHighlight,
+                Parent = EdgeInner,
+            })
+        )
+        New("UIStroke", {
+            Color = Color3.fromRGB(60, 60, 60),
+            Thickness = 1,
+            ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+            Parent = EdgeInner,
+        })
+
+        --// Second light ring, 3px inside the inner line. Wraps the whole
+        --// content area so the border reads as a physical recessed frame.
+        local EdgeInner2 = New("Frame", {
+            BackgroundTransparency = 1,
+            Position = UDim2.fromOffset(3, 3),
+            Size = UDim2.new(1, -6, 1, -6),
+            ZIndex = 2,
+            Parent = MainFrame,
+        })
+        table.insert(
+            Library.Corners,
+            New("UICorner", {
+                CornerRadius = UDim.new(0, math.max(0, WindowInfo.CornerRadius - 2)),
+                Parent = EdgeInner2,
             })
         )
         New("UIStroke", {
             Color = Color3.fromRGB(46, 46, 46),
             Thickness = 1,
             ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-            Parent = EdgeHighlight,
+            Parent = EdgeInner2,
         })
 
         Library:MakeLine(MainFrame, {
