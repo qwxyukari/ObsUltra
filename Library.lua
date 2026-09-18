@@ -14087,79 +14087,59 @@ function Library:CreateWindow(WindowInfo)
                 Parent = MainFrame,
             })
         )
--- 1. Удаляем стандартные UIStroke, если они есть
+		
+-- 1. Удаляем все UIStroke/UICorner, если они создаются автоматически
 for _, Child in MainFrame:GetChildren() do
     if Child:IsA("UIStroke") or Child:IsA("UICorner") then
         Child:Destroy()
     end
 end
 
--- 2. Внешняя черная рамка (Обхватывает ВСЁ меню со всех сторон)
-local GSOuter = New("Frame", {
-    Name = "GS_OuterBorder",
-    Size = UDim2.new(1, 0, 1, 0),
-    Position = UDim2.new(0, 0, 0, 0),
+-- 2. Внешняя черная обводка (1px) — теперь она держит ВСЁ меню
+local OuterBorder = New("Frame", {
+    Name = "Gamesense_Outer",
+    Size = MainFrame.Size, -- Берем размер MainFrame
+    Position = MainFrame.Position, -- Берем позицию MainFrame
     BackgroundColor3 = Color3.fromRGB(12, 12, 12),
     BorderSizePixel = 0,
-    ZIndex = 1,
-    Parent = MainFrame
+    Parent = MainFrame.Parent -- Вешаем на ScreenGui
 })
 
--- 3. Вторая серая линия (1px вглубь)
-local GSInline1 = New("Frame", {
-    Name = "GS_Inline1",
+-- 3. Внутренняя светлая рамка (1px)
+local InnerBorder = New("Frame", {
+    Name = "Gamesense_Inner",
     Size = UDim2.new(1, -2, 1, -2),
     Position = UDim2.new(0, 1, 0, 1),
     BackgroundColor3 = Color3.fromRGB(60, 60, 60),
     BorderSizePixel = 0,
-    ZIndex = 2,
-    Parent = GSOuter
+    Parent = OuterBorder
 })
 
--- 4. Тёмная широкая прослойка (4px вглубь)
-local GSInline2 = New("Frame", {
-    Name = "GS_Inline2",
+-- 4. Тёмная прослойка (4px)
+local MidBorder = New("Frame", {
+    Name = "Gamesense_Mid",
     Size = UDim2.new(1, -2, 1, -2),
     Position = UDim2.new(0, 1, 0, 1),
     BackgroundColor3 = Color3.fromRGB(40, 40, 40),
     BorderSizePixel = 0,
-    ZIndex = 3,
-    Parent = GSInline1
+    Parent = InnerBorder
 })
 
--- 5. Третья внутренняя серая линия (1px вглубь)
-local GSInline3 = New("Frame", {
-    Name = "GS_Inline3",
+-- 5. Третья внутренняя серая линия (1px)
+local InnerLine = New("Frame", {
+    Name = "Gamesense_Line",
     Size = UDim2.new(1, -6, 1, -6),
     Position = UDim2.new(0, 3, 0, 3),
     BackgroundColor3 = Color3.fromRGB(60, 60, 60),
     BorderSizePixel = 0,
-    ZIndex = 4,
-    Parent = GSInline2
+    Parent = MidBorder
 })
 
--- 6. Фирменная верхняя цветная полоса Gamesense (Accent Line)
-local GSTopLine = New("Frame", {
-    Name = "GS_TopAccent",
-    Size = UDim2.new(1, 0, 0, 2),
-    Position = UDim2.new(0, 0, 0, 0),
-    BackgroundColor3 = Library.Accent or Color3.fromRGB(59, 175, 220), -- Цвет акцента (синий/голубой)
-    BorderSizePixel = 0,
-    ZIndex = 6,
-    Parent = GSInline3
-})
-
--- 7. Основное тело для контента (Смещено на 1px вниз под верхнюю полосу)
-local GSBody = New("Frame", {
-    Name = "GS_BodyFrame",
-    Size = UDim2.new(1, -2, 1, -4),
-    Position = UDim2.new(0, 1, 0, 2),
-    BackgroundColor3 = Color3.fromRGB(23, 23, 23),
-    BorderSizePixel = 0,
-    ClipsDescendants = true,
-    ZIndex = 5,
-    Parent = GSInline3
-})
+-- 6. Перепривязываем MainFrame ВНУТРЬ нашей структуры:
+MainFrame.Parent = InnerLine
+MainFrame.Position = UDim2.new(0, 1, 0, 1)
+MainFrame.Size = UDim2.new(1, -2, 1, -2)
+MainFrame.BorderSizePixel = 0
 
         --// Rainbow bar (sk33t style, static) \\--
         local RainbowBar = New("ImageLabel", {
