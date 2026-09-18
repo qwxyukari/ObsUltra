@@ -14087,9 +14087,16 @@ function Library:CreateWindow(WindowInfo)
                 Parent = MainFrame,
             })
         )
+-- 1. Удаляем стандартные UIStroke, если они есть
+for _, Child in MainFrame:GetChildren() do
+    if Child:IsA("UIStroke") or Child:IsA("UICorner") then
+        Child:Destroy()
+    end
+end
 
-local OuterBorder = New("Frame", {
-    Name = "OuterBorder",
+-- 2. Внешняя черная рамка (Обхватывает ВСЁ меню со всех сторон)
+local GSOuter = New("Frame", {
+    Name = "GS_OuterBorder",
     Size = UDim2.new(1, 0, 1, 0),
     Position = UDim2.new(0, 0, 0, 0),
     BackgroundColor3 = Color3.fromRGB(12, 12, 12),
@@ -14098,34 +14105,60 @@ local OuterBorder = New("Frame", {
     Parent = MainFrame
 })
 
-local InnerBorder = New("Frame", {
-    Name = "InnerBorder",
+-- 3. Вторая серая линия (1px вглубь)
+local GSInline1 = New("Frame", {
+    Name = "GS_Inline1",
     Size = UDim2.new(1, -2, 1, -2),
     Position = UDim2.new(0, 1, 0, 1),
     BackgroundColor3 = Color3.fromRGB(60, 60, 60),
     BorderSizePixel = 0,
     ZIndex = 2,
-    Parent = OuterBorder
+    Parent = GSOuter
 })
 
-local DarkBorder = New("Frame", {
-    Name = "DarkBorder",
+-- 4. Тёмная широкая прослойка (4px вглубь)
+local GSInline2 = New("Frame", {
+    Name = "GS_Inline2",
     Size = UDim2.new(1, -2, 1, -2),
     Position = UDim2.new(0, 1, 0, 1),
     BackgroundColor3 = Color3.fromRGB(40, 40, 40),
     BorderSizePixel = 0,
     ZIndex = 3,
-    Parent = InnerBorder
+    Parent = GSInline1
 })
 
-local MainBody = New("Frame", {
-    Name = "MainBody",
-    Size = UDim2.new(1, -2, 1, -2),
-    Position = UDim2.new(0, 1, 0, 1),
-    BackgroundColor3 = Color3.fromRGB(23, 23, 23),
+-- 5. Третья внутренняя серая линия (1px вглубь)
+local GSInline3 = New("Frame", {
+    Name = "GS_Inline3",
+    Size = UDim2.new(1, -6, 1, -6),
+    Position = UDim2.new(0, 3, 0, 3),
+    BackgroundColor3 = Color3.fromRGB(60, 60, 60),
     BorderSizePixel = 0,
     ZIndex = 4,
-    Parent = DarkBorder
+    Parent = GSInline2
+})
+
+-- 6. Фирменная верхняя цветная полоса Gamesense (Accent Line)
+local GSTopLine = New("Frame", {
+    Name = "GS_TopAccent",
+    Size = UDim2.new(1, 0, 0, 2),
+    Position = UDim2.new(0, 0, 0, 0),
+    BackgroundColor3 = Library.Accent or Color3.fromRGB(59, 175, 220), -- Цвет акцента (синий/голубой)
+    BorderSizePixel = 0,
+    ZIndex = 6,
+    Parent = GSInline3
+})
+
+-- 7. Основное тело для контента (Смещено на 1px вниз под верхнюю полосу)
+local GSBody = New("Frame", {
+    Name = "GS_BodyFrame",
+    Size = UDim2.new(1, -2, 1, -4),
+    Position = UDim2.new(0, 1, 0, 2),
+    BackgroundColor3 = Color3.fromRGB(23, 23, 23),
+    BorderSizePixel = 0,
+    ClipsDescendants = true,
+    ZIndex = 5,
+    Parent = GSInline3
 })
 
         --// Rainbow bar (sk33t style, static) \\--
