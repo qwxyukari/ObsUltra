@@ -14153,19 +14153,21 @@ function Library:CreateWindow(WindowInfo)
             Position = UDim2.fromOffset(0, 48),
             Size = UDim2.new(1, 0, 0, 1),
         })
-        local RainbowBarInset = 10
+
         --// Rainbow bar (sk33t style, static) \\--
-        local RainbowBar = New("ImageLabel", {
-            Name = "RainbowBar",
-            BackgroundTransparency = 1,
-            BorderSizePixel = 0,
-            Image = "rbxassetid://8508019876",
-            Position = UDim2.fromOffset(RainbowBarInset, 1),
-            Size = UDim2.new(1, -RainbowBarInset * 2, 0, 2),
-            ZIndex = 5,
-            Visible = (WindowInfo.RainbowBar and WindowInfo.RainbowBar.Enabled ~= false),
-            Parent = ContentFrame,
-        })
+local RainbowBarInset = WindowInfo.CornerRadius * 0.475
+
+local RainbowBar = New("ImageLabel", {
+    Name = "RainbowBar",
+    BackgroundTransparency = 1,
+    BorderSizePixel = 0,
+    Image = "rbxassetid://8508019876",
+    Position = UDim2.fromOffset(RainbowBarInset, 1),
+    Size = UDim2.new(1, -RainbowBarInset * 2, 0, 2),
+    ZIndex = 5,
+    Visible = (WindowInfo.RainbowBar and WindowInfo.RainbowBar.Enabled ~= false),
+    Parent = ContentFrame,
+})
 
         DividerLine = New("Frame", {
             BackgroundColor3 = "OutlineColor",
