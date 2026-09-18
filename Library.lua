@@ -14930,9 +14930,9 @@ function Library:CreateWindow(WindowInfo)
             Size = UDim2.new(1, 0, 0, 20 + WindowInfo.CornerRadius),
             Parent = ContentFrame
         })
-        Library:MakeLine(MainFrame, {
+        Library:MakeLine(ContentFrame, {
             AnchorPoint = Vector2.new(0, 1),
-            Position = UDim2.new(0, 0, 1, -(20 + WindowInfo.CornerRadius)),
+            Position = UDim2.new(0, 0, 1, -20),
             Size = UDim2.new(1, 0, 0, 1),
         })
 
