@@ -14088,6 +14088,35 @@ function Library:CreateWindow(WindowInfo)
             })
         )
         Library:AddOutline(MainFrame)
+        --// gamesense-style window edge: 1px dark outer ring + 1px light inner line
+        for _, Stroke in MainFrame:GetChildren() do
+            if Stroke:IsA("UIStroke") then
+                Stroke.Color = Color3.fromRGB(12, 12, 12)
+                Stroke.Thickness = 1
+            end
+        end
+
+        local EdgeHighlight = New("Frame", {
+            BackgroundTransparency = 1,
+            Position = UDim2.fromOffset(1, 1),
+            Size = UDim2.new(1, -2, 1, -2),
+            ZIndex = 1,
+            Parent = MainFrame,
+        })
+        table.insert(
+            Library.Corners,
+            New("UICorner", {
+                CornerRadius = UDim.new(0, math.max(0, WindowInfo.CornerRadius - 1)),
+                Parent = EdgeHighlight,
+            })
+        )
+        New("UIStroke", {
+            Color = Color3.fromRGB(60, 60, 60),
+            Thickness = 1,
+            ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+            Parent = EdgeHighlight,
+        })
+
         Library:MakeLine(MainFrame, {
             Position = UDim2.fromOffset(0, 48),
             Size = UDim2.new(1, 0, 0, 1),
