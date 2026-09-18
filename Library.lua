@@ -14156,15 +14156,14 @@ function Library:CreateWindow(WindowInfo)
         })
 
         --// Rainbow bar (sk33t style, static) \\--
-        local RainbowBarInset = WindowInfo.CornerRadius * 0.570
 
         RainbowBarRef = New("ImageLabel", {
             Name = "RainbowBar",
             BackgroundTransparency = 1,
             BorderSizePixel = 0,
             Image = "rbxassetid://8508019876",
-            Position = UDim2.fromOffset(RainbowBarInset, 1),
-            Size = UDim2.new(1, -RainbowBarInset * 2, 0, 2),
+            Position = UDim2.fromOffset(0, 1),
+            Size = UDim2.new(1, 0, 0, 2),
             ZIndex = 5,
             Visible = (WindowInfo.RainbowBar and WindowInfo.RainbowBar.Enabled ~= false),
             Parent = ContentFrame,
@@ -15516,11 +15515,6 @@ function Library:CreateWindow(WindowInfo)
 
         ResizeButton.Position = UDim2.new(1, -Radius / 4, 0, 0)
         BottomBackground.Size = UDim2.new(1, 0, 0, 20 + Radius)
-		if RainbowBarRef then
-            local Inset = Radius * 0.570
-            RainbowBarRef.Position = UDim2.fromOffset(Inset, 1)
-            RainbowBarRef.Size = UDim2.new(1, -Inset * 2, 0, 2)
-        end
 
         for _, Menu in Library.ContextMenus do
             if Menu.Destroyed then
