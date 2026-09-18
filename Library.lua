@@ -14965,7 +14965,10 @@ function Library:CreateWindow(WindowInfo)
             Padding = UDim.new(0, 6),
             Parent = FooterHolder,
         })
-
+        New("UIPadding", {
+            PaddingTop = UDim.new(0, 2),
+            Parent = FooterHolder,
+        })
         local function AddFooterSegment(Info)
             local Text = tostring(Info.Text or "")
             --// Copyable is opt in per segment, and impossible without a clipboard
