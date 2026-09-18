@@ -14156,7 +14156,7 @@ function Library:CreateWindow(WindowInfo)
         })
 
         --// Rainbow bar (sk33t style, static) \\--
-        local RainbowBarInset = WindowInfo.CornerRadius * 0.475
+        local RainbowBarInset = WindowInfo.CornerRadius * 0.500
 
         RainbowBarRef = New("ImageLabel", {
             Name = "RainbowBar",
@@ -15518,7 +15518,7 @@ function Library:CreateWindow(WindowInfo)
         ResizeButton.Position = UDim2.new(1, -Radius / 4, 0, 0)
         BottomBackground.Size = UDim2.new(1, 0, 0, 20 + Radius)
 		if RainbowBarRef then
-            local Inset = Radius * 0.475
+            local Inset = Radius * 0.500
             RainbowBarRef.Position = UDim2.fromOffset(Inset, 1)
             RainbowBarRef.Size = UDim2.new(1, -Inset * 2, 0, 2)
         end
