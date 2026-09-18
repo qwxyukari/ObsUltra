@@ -14089,63 +14089,85 @@ function Library:CreateWindow(WindowInfo)
         )
         Library:AddOutline(MainFrame)
         --// gamesense-style window edge: 1px dark outer ring + 1px light inner line
-        for _, Stroke in MainFrame:GetChildren() do
-            if Stroke:IsA("UIStroke") then
-                Stroke:Destroy()
+        for _, Child in MainFrame:GetChildren() do
+            if Child:IsA("UIStroke") then
+                Child:Destroy()
             end
         end
 
-        --// Outer dark ring
+        --// Ring 1 — outer dark hairline
+        local BorderRing1 = New("Frame", {
+            BackgroundTransparency = 1,
+            Size = UDim2.fromScale(1, 1),
+            ZIndex = 2,
+            Parent = MainFrame,
+        })
+        table.insert(Library.Corners, New("UICorner", {
+            CornerRadius = UDim.new(0, WindowInfo.CornerRadius),
+            Parent = BorderRing1,
+        }))
         New("UIStroke", {
             Color = Color3.fromRGB(12, 12, 12),
             Thickness = 1,
             ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-            Parent = MainFrame,
+            Parent = BorderRing1,
         })
 
-        --// Inner light line (1px in from the outer ring)
-        local EdgeInner = New("Frame", {
+        --// Ring 2 — light grey line
+        local BorderRing2 = New("Frame", {
             BackgroundTransparency = 1,
             Position = UDim2.fromOffset(1, 1),
             Size = UDim2.new(1, -2, 1, -2),
             ZIndex = 2,
             Parent = MainFrame,
         })
-        table.insert(
-            Library.Corners,
-            New("UICorner", {
-                CornerRadius = UDim.new(0, math.max(0, WindowInfo.CornerRadius - 1)),
-                Parent = EdgeInner,
-            })
-        )
+        table.insert(Library.Corners, New("UICorner", {
+            CornerRadius = UDim.new(0, math.max(0, WindowInfo.CornerRadius - 1)),
+            Parent = BorderRing2,
+        }))
         New("UIStroke", {
             Color = Color3.fromRGB(60, 60, 60),
             Thickness = 1,
             ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-            Parent = EdgeInner,
+            Parent = BorderRing2,
         })
 
-        --// Second light ring, 3px inside the inner line. Wraps the whole
-        --// content area so the border reads as a physical recessed frame.
-        local EdgeInner2 = New("Frame", {
+        --// Ring 3 — mid grey band (thicker: 3px)
+        local BorderRing3 = New("Frame", {
             BackgroundTransparency = 1,
-            Position = UDim2.fromOffset(3, 3),
-            Size = UDim2.new(1, -6, 1, -6),
+            Position = UDim2.fromOffset(2, 2),
+            Size = UDim2.new(1, -4, 1, -4),
             ZIndex = 2,
             Parent = MainFrame,
         })
-        table.insert(
-            Library.Corners,
-            New("UICorner", {
-                CornerRadius = UDim.new(0, math.max(0, WindowInfo.CornerRadius - 2)),
-                Parent = EdgeInner2,
-            })
-        )
+        table.insert(Library.Corners, New("UICorner", {
+            CornerRadius = UDim.new(0, math.max(0, WindowInfo.CornerRadius - 2)),
+            Parent = BorderRing3,
+        }))
         New("UIStroke", {
-            Color = Color3.fromRGB(46, 46, 46),
+            Color = Color3.fromRGB(40, 40, 40),
+            Thickness = 3,
+            ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+            Parent = BorderRing3,
+        })
+
+        --// Ring 4 — second light grey line
+        local BorderRing4 = New("Frame", {
+            BackgroundTransparency = 1,
+            Position = UDim2.fromOffset(5, 5),
+            Size = UDim2.new(1, -10, 1, -10),
+            ZIndex = 2,
+            Parent = MainFrame,
+        })
+        table.insert(Library.Corners, New("UICorner", {
+            CornerRadius = UDim.new(0, math.max(0, WindowInfo.CornerRadius - 3)),
+            Parent = BorderRing4,
+        }))
+        New("UIStroke", {
+            Color = Color3.fromRGB(60, 60, 60),
             Thickness = 1,
             ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-            Parent = EdgeInner2,
+            Parent = BorderRing4,
         })
 
         Library:MakeLine(MainFrame, {
