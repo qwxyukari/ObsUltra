@@ -14061,81 +14061,98 @@ function Library:CreateWindow(WindowInfo)
         Library.KeybindFrame.Position = UDim2.new(0, 6, 0.5, 0)
         Library.KeybindFrame.Visible = false
 
+        --// gamesense-style 4-ring border. MainFrame is now just the outer
+        --// dark hairline; the light/mid/light rings are nested frames with
+        --// real backgrounds, and every content element moves into ContentFrame.
         MainFrame = New("TextButton", {
-            BackgroundColor3 = function()
-                return Library:GetBetterColor(Library.Scheme.BackgroundColor, -1)
-            end,
             Name = "Main",
+            BackgroundColor3 = Color3.fromRGB(12, 12, 12),  -- outer hairline
+            BorderSizePixel = 0,
             Text = "",
             Position = WindowInfo.Position,
             Size = WindowInfo.Size,
             Visible = false,
             Parent = ScreenGui,
         })
-        --// Elements defined outside CreateWindow need this to overlay the window
         Library.MainFrame = MainFrame
-        table.insert(
-            Library.Corners,
-            New("UICorner", {
-                CornerRadius = UDim.new(0, WindowInfo.CornerRadius),
-                Parent = MainFrame,
-            })
-        )
-        table.insert(
-            Library.Scales,
-            New("UIScale", {
-                Parent = MainFrame,
-            })
-        )
-		
--- 1. Создаем ВНЕШНИЙ КОНТЕЙНЕР (он становится главным окном вместо MainFrame)
-local WindowWrapper = New("Frame", {
-    Name = "Gamesense_WindowWrapper",
-    Size = WindowInfo.Size or UDim2.fromOffset(600, 450), -- Размер вашего UI
-    Position = WindowInfo.Position or UDim2.fromScale(0.5, 0.5),
-    AnchorPoint = Vector2.new(0.5, 0.5),
-    BackgroundColor3 = Color3.fromRGB(12, 12, 12), -- 1px Внешняя черная обводка
-    BorderSizePixel = 0,
-    Parent = Library.ScreenGui or ScreenGui -- Укажите ваш ScreenGui
-})
+        table.insert(Library.Corners, New("UICorner", {
+            CornerRadius = UDim.new(0, WindowInfo.CornerRadius),
+            Parent = MainFrame,
+        }))
+        table.insert(Library.Scales, New("UIScale", {
+            Parent = MainFrame,
+        }))
 
--- 2. Вторая серая линия (1px)
-local InnerBorder1 = New("Frame", {
-    Name = "InnerBorder1",
-    Size = UDim2.new(1, -2, 1, -2),
-    Position = UDim2.new(0, 1, 0, 1),
-    BackgroundColor3 = Color3.fromRGB(60, 60, 60),
-    BorderSizePixel = 0,
-    Parent = WindowWrapper
-})
+        --// Ring 2: light grey line
+        local BorderRing1 = New("Frame", {
+            BackgroundColor3 = Color3.fromRGB(60, 60, 60),
+            BorderSizePixel = 0,
+            Position = UDim2.fromOffset(1, 1),
+            Size = UDim2.new(1, -2, 1, -2),
+            ZIndex = 0,
+            Parent = MainFrame,
+        })
+        table.insert(Library.Corners, New("UICorner", {
+            CornerRadius = UDim.new(0, math.max(0, WindowInfo.CornerRadius - 1)),
+            Parent = BorderRing1,
+        }))
 
--- 3. Темная прослойка (3px)
-local InnerBorder2 = New("Frame", {
-    Name = "InnerBorder2",
-    Size = UDim2.new(1, -2, 1, -2),
-    Position = UDim2.new(0, 1, 0, 1),
-    BackgroundColor3 = Color3.fromRGB(40, 40, 40),
-    BorderSizePixel = 0,
-    Parent = InnerBorder1
-})
+        --// Ring 3: mid grey band (thicker — 3px)
+        local BorderRing2 = New("Frame", {
+            BackgroundColor3 = Color3.fromRGB(40, 40, 40),
+            BorderSizePixel = 0,
+            Position = UDim2.fromOffset(1, 1),
+            Size = UDim2.new(1, -2, 1, -2),
+            ZIndex = 0,
+            Parent = BorderRing1,
+        })
+        table.insert(Library.Corners, New("UICorner", {
+            CornerRadius = UDim.new(0, math.max(0, WindowInfo.CornerRadius - 2)),
+            Parent = BorderRing2,
+        }))
 
--- 4. Внутренняя серая линия (1px)
-local InnerBorder3 = New("Frame", {
-    Name = "InnerBorder3",
-    Size = UDim2.new(1, -6, 1, -6),
-    Position = UDim2.new(0, 3, 0, 3),
-    BackgroundColor3 = Color3.fromRGB(60, 60, 60),
-    BorderSizePixel = 0,
-    Parent = InnerBorder2
-})
+        --// Ring 4: inner light grey line
+        local BorderRing3 = New("Frame", {
+            BackgroundColor3 = Color3.fromRGB(60, 60, 60),
+            BorderSizePixel = 0,
+            Position = UDim2.fromOffset(3, 3),
+            Size = UDim2.new(1, -6, 1, -6),
+            ZIndex = 0,
+            Parent = BorderRing2,
+        })
+        table.insert(Library.Corners, New("UICorner", {
+            CornerRadius = UDim.new(0, math.max(0, WindowInfo.CornerRadius - 3)),
+            Parent = BorderRing3,
+        }))
 
--- 5. Подстраиваем ваш MainFrame строго внутрь рамки
-MainFrame.Parent = InnerBorder3
-MainFrame.Position = UDim2.new(0, 1, 0, 1)
-MainFrame.Size = UDim2.new(1, -2, 1, -2)
-MainFrame.BackgroundColor3 = Color3.fromRGB(23, 23, 23)
-MainFrame.BorderSizePixel = 0
-MainFrame.ClipsDescendants = true -- Зажимает внутренние элементы, чтобы не вылезали
+        --// Content surface — everything from now on goes in here, so it sits
+        --// inside all 4 rings. Same color the original MainFrame used to be.
+        local ContentFrame = New("Frame", {
+            BackgroundColor3 = function()
+                return Library:GetBetterColor(Library.Scheme.BackgroundColor, -1)
+            end,
+            BorderSizePixel = 0,
+            Position = UDim2.fromOffset(1, 1),
+            Size = UDim2.new(1, -2, 1, -2),
+            ZIndex = 1,
+            ClipsDescendants = true,
+            Parent = BorderRing3,
+        })
+        Library:AddToRegistry(ContentFrame, {
+            BackgroundColor3 = function()
+                return Library:GetBetterColor(Library.Scheme.BackgroundColor, -1)
+            end,
+        })
+        table.insert(Library.Corners, New("UICorner", {
+            CornerRadius = UDim.new(0, math.max(0, WindowInfo.CornerRadius - 3)),
+            Parent = ContentFrame,
+        }))
+
+        --// Divider line under the header, now inside the content surface
+        Library:MakeLine(ContentFrame, {
+            Position = UDim2.fromOffset(0, 48),
+            Size = UDim2.new(1, 0, 0, 1),
+        })
 
         --// Rainbow bar (sk33t style, static) \\--
         local RainbowBar = New("ImageLabel", {
@@ -14147,14 +14164,14 @@ MainFrame.ClipsDescendants = true -- Зажимает внутренние эл�
             Size = UDim2.new(1, -2, 0, 2),
             ZIndex = 5,
             Visible = (WindowInfo.RainbowBar and WindowInfo.RainbowBar.Enabled ~= false),
-            Parent = MainFrame,
+            Parent = ContentFrame,
         })
 
         DividerLine = New("Frame", {
             BackgroundColor3 = "OutlineColor",
             Position = UDim2.fromOffset(InitialLeftWidth, 0),
             Size = UDim2.new(0, 1, 1, -21),
-            Parent = MainFrame,
+            Parent = ContentFrame,
             ZIndex = 2
         })
 
@@ -14213,7 +14230,7 @@ MainFrame.ClipsDescendants = true -- Зажимает внутренние эл�
         TopBar = New("Frame", {
             BackgroundTransparency = 1,
             Size = UDim2.new(1, 0, 0, 48),
-            Parent = MainFrame,
+            Parent = ContentFrame,
         })
         Library:MakeDraggable(MainFrame, TopBar, false, true, WindowSnapConfig)
 
@@ -14908,7 +14925,7 @@ MainFrame.ClipsDescendants = true -- Зажимает внутренние эл�
             end,
             Position = UDim2.fromScale(0, 1),
             Size = UDim2.new(1, 0, 0, 20 + WindowInfo.CornerRadius),
-            Parent = MainFrame
+            Parent = ContentFrame
         })
         Library:MakeLine(MainFrame, {
             AnchorPoint = Vector2.new(0, 1),
@@ -14921,7 +14938,7 @@ MainFrame.ClipsDescendants = true -- Зажимает внутренние эл�
             BackgroundTransparency = 1,
             Position = UDim2.fromScale(0, 1),
             Size = UDim2.new(1, 0, 0, 20),
-            Parent = MainFrame,
+            Parent = ContentFrame,
         })
         table.insert(
             Library.Corners,
@@ -15152,7 +15169,7 @@ MainFrame.ClipsDescendants = true -- Зажимает внутренние эл�
             Position = UDim2.fromOffset(0, 49),
             ScrollBarThickness = 0,
             Size = UDim2.new(0, InitialLeftWidth, 1, -70),
-            Parent = MainFrame,
+            Parent = ContentFrame,
         })
         New("UIListLayout", {
             Parent = Tabs,
@@ -15168,7 +15185,7 @@ MainFrame.ClipsDescendants = true -- Зажимает внутренние эл�
             Name = "Container",
             Position = UDim2.new(1, 0, 0, 49),
             Size = UDim2.new(1, -InitialLeftWidth - 1, 1, -70),
-            Parent = MainFrame,
+            Parent = ContentFrame,
         })
         New("UIPadding", {
             PaddingBottom = UDim.new(0, 0),
