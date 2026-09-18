@@ -14091,16 +14091,23 @@ function Library:CreateWindow(WindowInfo)
         --// gamesense-style window edge: 1px dark outer ring + 1px light inner line
         for _, Stroke in MainFrame:GetChildren() do
             if Stroke:IsA("UIStroke") then
-                Stroke.Color = Color3.fromRGB(12, 12, 12)
-                Stroke.Thickness = 1
+                Stroke:Destroy()
             end
         end
+
+        New("UIStroke", {
+            Color = Color3.fromRGB(10, 10, 15),
+            Thickness = 1,
+            ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+            Parent = MainFrame,
+        })
 
         local EdgeHighlight = New("Frame", {
             BackgroundTransparency = 1,
             Position = UDim2.fromOffset(1, 1),
             Size = UDim2.new(1, -2, 1, -2),
-            ZIndex = 1,
+            --// Must sit above Tabs / Container (ZIndex 1) or they cover it
+            ZIndex = 2,
             Parent = MainFrame,
         })
         table.insert(
@@ -14111,7 +14118,7 @@ function Library:CreateWindow(WindowInfo)
             })
         )
         New("UIStroke", {
-            Color = Color3.fromRGB(60, 60, 60),
+            Color = Color3.fromRGB(46, 46, 46),
             Thickness = 1,
             ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
             Parent = EdgeHighlight,
