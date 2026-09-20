@@ -14163,7 +14163,7 @@ function Library:CreateWindow(WindowInfo)
             BorderSizePixel = 0,
             Image = "rbxassetid://8508019876",
             Position = UDim2.fromOffset(0, 0.9),
-            Size = UDim2.new(0.9, 0, 0, 1.9),
+            Size = UDim2.new(0.85, 0, 0, 1.85),
             ZIndex = 5,
             Visible = (WindowInfo.RainbowBar and WindowInfo.RainbowBar.Enabled ~= false),
             Parent = ContentFrame,
