@@ -14155,7 +14155,7 @@ function Library:CreateWindow(WindowInfo)
             Size = UDim2.new(1, 0, 0, 1),
         })
 
-        --// Rainbow bar (sk33t style, static) \\--
+        --// Rainbow bar \\--
 
         RainbowBarRef = New("ImageLabel", {
             Name = "RainbowBar",
