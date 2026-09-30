@@ -1272,7 +1272,7 @@ end
 function ThemeManager:CreateGroupBox(Tab: any, IconName: string)
     return Tab:AddGroupbox({
         Side = "Left",
-        Name = "Themes",
+        Name = "<b>Themes</b>",
         IconName = IconName or "paintbrush",
     })
 end
